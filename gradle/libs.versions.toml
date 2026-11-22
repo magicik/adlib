@@ -7,6 +7,8 @@ coroutines = "1.10.2"
 junit = "4.13.2"
 mockk = "1.14.5"
 turbine = "1.2.1"
+# Real org.json for JVM unit tests (android.jar only has stubs).
+orgJson = "20260814"
 # Google Mobile Ads Next-Gen SDK. If mediation is added later, exclude play-services-ads.
 adsMobileSdk = "1.7.0"
 ump = "4.0.0"
@@ -23,6 +25,7 @@ androidx-activity-compose = { group = "androidx.activity", name = "activity-comp
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
 turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
+org-json = { group = "org.json", name = "json", version.ref = "orgJson" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

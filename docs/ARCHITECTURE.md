@@ -8,4 +8,5 @@
 | sample | com.example.adlib.sample | Demo app. |
 
 Design: `BookReader/docs/ads-lib-phase1-v3.txt` (sections 0, 1, 2, 10). Not copied here.
-Current code: placeholders only (`AdLibVersion`).
+Current code:
+- `core.config`: `PlacementConfig` (+ `AdTiers`, `HighFloorTier`, `AdUnitTier`, `RefreshConfig`, `PlacementDefault`) and internal `ConfigParser` (new schema, design section 3; warnings via `ConfigWarningSink`).

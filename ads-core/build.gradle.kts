@@ -34,6 +34,7 @@ dependencies {
     testImplementation(libs.mockk)
     testImplementation(libs.turbine)
     testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.org.json)
 }
 
 // TODO(publish): groupId must become com.github.<jitpack-user> (see README). Not published for real yet.
