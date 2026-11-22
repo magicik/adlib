@@ -1,0 +1,81 @@
+ADS LIB - SCHEMA CONFIG (de owner duyet truoc khi viet parser, Q5b)
+Nguon schema cu: BTN/Project/AdsExample/ads/.../config/PlacementConfig.kt (doc thang tu code, khong suy doan).
+
+=====================================================================
+1. SCHEMA CU (dang chay production)
+=====================================================================
+{
+  "enable": true,                  // mac dinh false
+  "total_timeout_ms": 15000,       // mac dinh 15000
+  "list_ads": [                    // thu theo thu tu, chung trong total_timeout_ms
+    { "enable_ad": true, "type": "admob", "timeout_ms": 10000, "adunit": "ca-app-pub-..." }
+  ],
+  "high_floor": { "enable": false, "adunit": "ca-app-pub-..." },   // thu truoc, khong timeout rieng
+  "refresh_seconds": 0,            // chi native
+  "refresh_count": 0,              // chi native
+  "gone_with_test_mode": false     // native/inter/app-open, khong ap dung rewarded
+}
+Hanh vi cu: JSON rong/loi -> PlacementConfig() = enable=false (TAT placement).
+Hanh vi cu: ad bi bo qua neu enable_ad=false hoac adunit rong; "type" duoc doc nhung khong dung de loc.
+
+=====================================================================
+2. SCHEMA MOI
+=====================================================================
+{
+  "version": 1,
+  "enable": true,
+  "total_timeout_ms": 20000,
+  "tiers": {
+    "high_floor": { "adunit": "ca-app-pub-...", "enable": false },
+    "normal": [ { "adunit": "ca-app-pub-...", "timeout_ms": 10000, "enable": true } ]
+  },
+  "refresh": { "seconds": 0, "max_count": 0 },
+  "gone_in_test_mode": false
+}
+Bo "type" (khong con MAX). Doi ten: enable_ad -> enable (trong tung phan tu normal).
+
+=====================================================================
+3. QUY TAC PARSER (doc ca hai, khong doi ten key Remote Config)
+=====================================================================
+Chon nhanh:  co "version" >= 1 hoac co "tiers"  -> schema moi;  nguoc lai -> schema cu.
+Map cu -> moi:
+  enable                 -> enable
+  total_timeout_ms       -> total_timeout_ms
+  list_ads[i].enable_ad  -> tiers.normal[i].enable      (LUU Y: addendum v2 chua ghi dong nay)
+  list_ads[i].adunit     -> tiers.normal[i].adunit
+  list_ads[i].timeout_ms -> tiers.normal[i].timeout_ms
+  list_ads[] type=="max" -> BO (lib khong co MAX); type "admob" hoac rong -> giu
+                            (cu khong loc theo type, nen rong = giu de khong lam mat ad dang chay)
+  high_floor.enable/adunit -> tiers.high_floor.enable/adunit
+  refresh_seconds / refresh_count -> refresh.seconds / refresh.max_count
+  gone_with_test_mode    -> gone_in_test_mode
+Mac dinh khi thieu truong (ca hai schema): enable=false, total_timeout_ms=15000, timeout_ms=10000,
+  high_floor tat, refresh 0/0, gone_in_test_mode=false  (GIONG ban cu, de khong doi hanh vi).
+Tolerant: sai kieu tung truong -> dung mac dinh cua truong do, khong bo ca placement.
+
+=====================================================================
+4. DIEM OWNER DA QUYET (2026-11-22: S1, S2, S3 deu DONG Y theo de xuat)
+=====================================================================
+S1. JSON rong / khong parse duoc:
+    - Cu: placement TAT (enable=false).
+    - Addendum v2 (R7): dung "mac dinh placement", KHONG coi la tat.
+    De xuat: "mac dinh placement" = do APP khai bao khi dang ky placement (vd Splash bat voi 1 adunit
+    mac dinh, cac placement khac tat). Neu app khong khai bao mac dinh -> TAT nhu cu. Dong y?
+S2. Phan tu list_ads co type la "max": bo han (de xuat) hay bao loi log roi bo? De xuat bo + log 1 dong.
+S3. Truong la (key khong biet): bo qua im lang (de xuat) de schema sau nay them truong khong lam hong app cu.
+S4. Lo trinh: (1) ra ban voi parser kep; (2) doi JSON tung placement sang schema moi tren console;
+    (3) bo nhanh schema cu khi khong con ban app nao dung. Khong can key _v3. Rollback = doi JSON.
+
+=====================================================================
+5. VI DU CHUYEN DOI (cung mot placement)
+=====================================================================
+Cu:  {"enable":true,"total_timeout_ms":15000,
+      "list_ads":[{"enable_ad":true,"type":"admob","timeout_ms":10000,"adunit":"ca-app-pub-1/2"},
+                  {"enable_ad":true,"type":"max","timeout_ms":8000,"adunit":"xyz"}],
+      "high_floor":{"enable":true,"adunit":"ca-app-pub-1/3"},"refresh_seconds":30,"refresh_count":3}
+Moi: {"version":1,"enable":true,"total_timeout_ms":15000,
+      "tiers":{"high_floor":{"enable":true,"adunit":"ca-app-pub-1/3"},
+               "normal":[{"enable":true,"timeout_ms":10000,"adunit":"ca-app-pub-1/2"}]},
+      "refresh":{"seconds":30,"max_count":3},"gone_in_test_mode":false}
+(phan tu "max" bi bo)
+Test parser se dung dung vi du nay (bang bang: cu -> ket qua mong doi == moi).

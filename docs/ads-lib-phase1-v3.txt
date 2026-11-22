@@ -1,0 +1,204 @@
+GIAI DOAN 1 - THIET KE v3 (GOP v1 + v2 + schema + REVIEW OPUS 2026-11-22)
+v3 THANG v1/v2/ads-lib-config-schema.txt khi khac nhau. Ba file cu giu lam lich su, khong sua nua.
+Chua viet code. Muc [DE XUAT] = toi de xuat, owner chua duyet. Muc [CHOT] = owner da chot.
+Nguon docs: https://developers.google.com/admob/android/next-gen/<trang>.md.txt
+
+=====================================================================
+0. PHAM VI GD2 VA QUYET DINH DA CHOT
+=====================================================================
+App dau tien: BookReader (app moi, Compose). ColorVerse migrate sau.
+[CHOT] Package com.example.adlib (tam), Compose BOM 2026.09.00, publish JitPack.
+[CHOT] Tu lam AdPool, khong dung Preloader o v1; AdGateway tach load/poll de sau thay Preloader (Preloader beta, chi Inter/Rewarded/AppOpen, cap 6, khong ho tro doi request/floor).
+[CHOT] UMP truoc; chi init SDK khi canRequestAds = true (docs: SDK co the preload khi init).
+[CHOT] Consent timeout 10s (xem 5: chi ap cho cac buoc mang, KHONG ap cho luc form dang hien).
+[CHOT] Config cho song song voi consent. Banner load truc tiep theo View, khong pool. Tran 8 o native moi man.
+[CHOT] Compose native: dung NativeAdView/NativeAdAttribution cua Google (compose_utils, giu license Apache-2.0), khong boc ComposeView.
+[CHOT] App Open khi QUAY LAI app (R33) la BAT BUOC. KHONG thiet ke/lam Splash o GD2 (owner quyet sau).
+[CHOT] Lop phu + progress o lan quay lai dau chua co ad, show ngay khi ad ve (Q15).
+[CHOT 2026-11-22] Parser loi CHI doc schema MOI. Doc schema cu = LegacyConfigReader TUY CHON (co bat trong AdsOptions), viet khi migrate ColorVerse,
+  test lay PlacementConfig.fromJson cu lam chuan. BookReader khong bat. (Thay Q5b cu "doc ca hai".)
+[CHOT] S1/S2/S3 cua schema (mac dinh khi JSON loi, bo type "max", bo qua key la) van dung, nhung S1 duoc thong nhat thanh quy tac duy nhat o muc 3.
+Loai khoi pham vi GD2: Splash, LegacyConfigReader, ads-ui-view (lam sau ads-ui-compose; xem 1), MAX/AppLovin (migration.md: khong tuong thich).
+
+=====================================================================
+1. MODULE
+=====================================================================
+ads-core         Kotlin thuan + ads-mobile-sdk 1.7.0 + UMP + coroutines. Khong co View/Compose.
+                 Config, Pool, FullScreenGate, Consent, Premium, TestMode, Events, FullScreen (Inter/Rewarded/AppOpen), AppOpenResume.
+ads-ui-compose   NativeAd{}, BannerAd, LazyGrid/LazyList helper (lam TRUOC vi BookReader dung Compose).
+ads-ui-view      NativeAdSlot, BannerAdSlot, NativeAdBinder, RecyclerView helper (lam SAU, khong chan GD2).
+ads-testing      Fake AdGateway, FakeConsent, FakeClock, FakeForeground (khong dong goi release).
+- Co lap SDK sau AdGateway (load/show/destroy). Moi callback SDK thread khong biet -> dua ve MOT dispatcher main tuan tu duy nhat (M12), khong "chay ngay neu dang o main".
+- Pool bi giam tren dispatcher main do (bo synchronized/semaphore theo loai, chi con bo dem parallel) (F2).
+- Ads.install chi chay o main process (L6).
+
+=====================================================================
+2. SU THAT TU DOCS (da xac minh) VA CHUA BIET
+=====================================================================
+- Init: MobileAds.initialize(ctx, InitializationConfig.Builder(appId).build()[, OnAdapterInitializationCompleteListener]) @WorkerThread; listener goi sau khi adapter xong hoac timeout 30s;
+  goi lai an toan (appId khac = no-op); isInitialized(); "ads may be preloaded upon initialization"; flag request (child/under-age -> nay setAgeRestrictedTreatment) dat TRUOC init.
+- UMP (trang privacy): requestConsentInfoUpdate (moi lan mo app) -> UserMessagingPlatform.loadAndShowConsentFormIfRequired(activity) -> canRequestAds().
+  canRequestAds() luon false cho den khi goi requestConsentInfoUpdate; co the true tu phien truoc. Privacy options: getPrivacyOptionsRequirementStatus()==REQUIRED + showPrivacyOptionsForm(activity).
+  Can APPLICATION_ID trong manifest (cho UMP) VA trong code (InitializationConfig).
+- Paid: AdEventCallback.onAdPaid(AdValue(precisionType, valueMicros: Long, currencyCode: String)); PrecisionType = ESTIMATED|PRECISE|PUBLISHER_PROVIDED|UNKNOWN (nghia tung gia tri: KHONG tai lieu hoa; lib truyen nguyen).
+  Cong don doanh thu bang valueMicros theo tung currencyCode, khong cong khac tien te.
+- Tai lieu KHONG noi: thread cua callback load/show/onAdPaid/init-listener; timeout load (AdRequest khong co); tuong lai cua request dang bay (lib khong huy duoc, chi bo ket qua).
+  => do thuc te o app mau (log thread), thiet ke phong thu nhu muc 1.
+- Preloader (khong dung o v1): xem [CHOT]. Native multi-load (toi da 5) khong dung voi mediation -> lib luon load tung ad mot.
+- Native: NativeAdLoader.load(request, callback), app ve vao NativeAdView, registerNativeAd; nativeAd.destroy() bat buoc; docs khuyen xoa cache native sau 1 gio (lib: 55 phut).
+- Load API: ad unit nam trong request: AdRequest.Builder(adUnitId) (inter/rewarded/appopen), NativeAdRequest.Builder(adUnit, types), BannerAdRequest.Builder(adUnit, size). Rewarded: SDK 1.7.0 chi co MOT chu ky (xac minh javap tren AAR): RewardedAd.load(AdRequest, AdLoadCallback) va show(Activity, OnUserEarnedRewardListener); dang load(Context,String,...) trong docs SSV la cua SDK cu.
+- App Open het han 4 gio; loai khac khong tai lieu hoa (lib: inter/rewarded 55 phut).
+- Test unit Google (ca-app-pub-3940256099942544): AppOpen /9257395921, Banner anchored /9214589741, Banner co dinh /6300978111, Interstitial /1033173712, Rewarded /5224354917, Native /2247696110, Native video /1044960115.
+  Demo unit khong test duoc mediation. Khong co API "thiet bi nay la test device" => TestMode do lib tu lam (R22-R27).
+- compileSdk >= 35 (quick-start) du migration ghi 34; BookReader targetSdk 37 khong anh huong. Banner: AdView.loadAd(), AdView.registerBannerAd() (BannerAd.load() deprecated).
+
+=====================================================================
+3. CONFIG (SCHEMA MOI, PARSER, MAC DINH)
+=====================================================================
+{
+  "version": 1,
+  "enable": true,
+  "total_timeout_ms": 20000,
+  "tiers": {
+    "high_floor": { "adunit": "ca-app-pub-...", "enable": false },
+    "normal": [ { "adunit": "ca-app-pub-...", "timeout_ms": 10000, "enable": true } ]
+  },
+  "refresh": { "seconds": 0, "max_count": 0 },
+  "gone_in_test_mode": false
+}
+QUY TAC MAC DINH DUY NHAT (sua H2) [DE XUAT]:
+  1. Placement khai bao `default` luc dang ky (C1 muc 4). Moi truong thieu trong JSON lay tung truong tu default cua placement.
+  2. JSON rong / null / khong parse duoc -> toan bo = default cua placement (KHONG coi la tat, khong gap doi y nghia voi "{}").
+  3. Placement khong khai bao default -> tat (enable=false). Gia tri toan cuc cuoi cung: total_timeout 15000, timeout_ms 10000, refresh 0/0, high_floor tat, gone_in_test_mode=false.
+  4. Muon TAT placement tu console: dat "enable": false (khong dung "" hay xoa key).
+[CHOT owner 2026-11-23] Phan tu tiers.normal: truong "enable" thieu -> mac dinh TRUE (khac lib cu enable_ad=false). Placement khong co default nhung JSON co enable:true -> bat, truong thieu lay gia tri toan cuc.
+Parser tolerant: sai kieu tung truong -> mac dinh cua truong do. Coerce nhu org.json: "true"/"15000" duoc chap nhan (M10). Key la -> bo qua im lang (S3).
+  Phan tu normal co adunit rong hoac enable=false -> bo. Neu JSON co "list_ads" ma khong co "tiers"/"version" -> log warning "legacy schema ignored" (chua bat LegacyConfigReader).
+total_timeout_ms [DE XUAT]: chi tinh cho cac tier normal. High floor co cap rieng (muc 6.3), khong tinh vao total_timeout_ms.
+Config doc moi lan load (R8), kill switch + premium + canRequestAds + enable doc ca LUC SHOW (muc 6.6).
+
+=====================================================================
+4. API CONG KHAI (BAN NHAP)
+=====================================================================
+Ads.install(application, AdsOptions(
+    placements = listOf(Placement("home_native", AdFormat.Native, poolKey = "home_native", default = ...), ...),
+    configProvider = ConfigProvider { placement -> json },     // doc moi lan load
+    pool = PoolOptions(maxPerKey, parallel),
+    fullScreen = FullScreenOptions(minGapAfterFullScreenMs = 60_000, dailyCap, oneInN),
+    appOpenResume = AppOpenResumeOptions(minBackgroundMs, overlay = ..., overlayMaxMs, excludedActivities),
+    testDeviceIds, debug, ageRestricted = null, legacyConfigReader = null,
+    listener = AdsEventListener { event -> ... }))
+- install() kiem tra som: trung ten placement; hai placement cung poolKey khac AdFormat -> debug crash / release log.
+- Ads.setPremium(Boolean) / Ads.isPremium: StateFlow; Ads.setKillSwitch(...)
+- Ads.consent: gather(activity) (muc 5), canRequestAds: StateFlow<Boolean>, privacyOptionsRequired, showPrivacyOptions(activity)
+- Ads.interstitial.preload(placement); Ads.interstitial.showThen(activity, placement) { action() }   -- action LUON chay (muc 6.2)
+- Ads.rewarded.isAvailable/isAllowed(placement): Flow<Boolean>; Ads.rewarded.request(activity, placement, onEarned, onClosed, onUnavailable)
+- Ads.appOpen.attachResume(application); Ads.appOpen.pauseForExternalFlow(maxMs = 60_000) (tu het han, muc 7)
+- Native: Compose NativeAd(placement, adIndex, loading){ ad -> }; View NativeAdSlot.bind(placement, adIndex). Banner: BannerAd(placement) / BannerAdSlot.
+- Slot: Idle | Loading | Shown | Gone; placeholder dung kich thuoc khi loading; Gone khi loi/tat/Premium (R3, R20, R41).
+- Khoa o native = (screenScope, adOrdinal) (C2 v2): loc/chen item khong doi key.
+
+=====================================================================
+5. KHOI DONG, CONSENT, INIT (sua H3, H4, M4)
+=====================================================================
+T0  Application.onCreate: Ads.install (config mac dinh + premium da luu, dong bo, khong mang).
+T1  Consent can Activity: app goi Ads.consent.gather(activity) o Activity dau tien (hoac lib tu hook Activity dau tien qua ActivityLifecycleCallbacks neu bat autoGather).
+    Neu canRequestAds() da TRUE ngay luc khoi dong (consent phien truoc) -> init SDK ngay, song song voi requestConsentInfoUpdate.
+    Timeout 10s ap CHO requestConsentInfoUpdate va tai form, KHONG ap cho luc form dang hien (nguoi dung doc bao lau cung duoc).
+T2  Init theo CHUYEN TRANG StateFlow canRequestAds false->true o BAT KY thoi diem (sau form muon, sau privacy options, UMP ve muon). Init chi chay mot lan.
+    initialize goi tren thread rieng; listener hoan thanh CompletableDeferred. Load chi bat dau sau Deferred, moi nguoi cho co timeout rieng; khong tu load truoc listener.
+    Timeout init 4s chi la "nguoi cho bo cuoc" (tra NoAd), khong huy init; init xong muon thi cac load sau van chay.
+T3  Config tu xa: bat dau ngay T0, song song T1-T2, cho toi da 8s; het gio dung config da luu -> mac dinh.
+T4  Preload theo pool/config, khong chan UI.
+canRequestAds=false (tu choi/chua tra loi) -> khong init, moi load tra NoAd ngay (R11), khong treo. UMP loi nhung canRequestAds() van true tu phien truoc -> van init.
+Form consent dang hien: ConsentGate tu pause App Open resume (muc 7) va khong cho load full-screen.
+Recreate (R18): giu co da consent/da init; state o process-level singleton.
+
+=====================================================================
+6. POOL, GATE, FULL-SCREEN (sua H5, M1, M2, M3, M6, M8, M9, M11, M12)
+=====================================================================
+6.1 Pool
+- Khoa (poolKey, adType); entry giu ad, tier, loadedAt, placement. Lay ad ra nguyen tu (P12).
+- Dem so nguoi cho (waiters). Chay min(waiters, parallel) luot tai song song (single-flight theo LUOT TAI, khong theo khoa) -> 8 o native khong fill tuan tu.
+- maxPerKey: du thi khong tai them. Khong con day khoa cu theo maxKeys (placement dang ky tinh, biet truoc moi khoa) (F1). Day thi bo thuong truoc high floor, cu truoc moi.
+- Load chay trong scope process (SupervisorJob); nguoi cho huy rieng; request khong giu Activity context. Callback sau khi nguoi cho da bo -> dua vao pool neu con cho, nguoc lai destroy + event "dropped: late".
+- Native khong tai nhieu ad mot lan; banner khong qua pool.
+6.2 FullScreenGate
+- Trang thai Idle | Reserved(owner) | Showing(owner). Reserved gom: man cho rewarded, showThen dang cho ad, lop phu App Open dang cho tai.
+- WATCHDOG (H5): sau show(), neu khong co dismissed/failed callback: nha co khi mot Activity khong phai ad cua app ON_RESUME, hoac khi qua tran thoi gian (de xuat 2 phut). Phat event.
+- showThen: action chay trong MOI nhanh (co ad xong, khong ad, loi, cap, het gio, Activity recreate). Neu host dang recreate thi action cho den khi host moi STARTED (khong bo, khong chay tren host chet).
+6.3 High floor
+- Khong co timeout load tu SDK. Lib co CAP AN TOAN ~30s [CHOT Q11] chi de giai phong luot tai/permit, khong de bat nguoi dung cho. Nhả permit trong finally khi cap/huy; cho permit cung co timeout; khong acquire 2 lan trong cung luot (high floor roi normal) khi parallel=1.
+- Lib TU BO high floor khi co nguoi cho (waiter) hoac khi format la Native / AppOpen-reactive (khong phu thuoc quy uoc config) [DE XUAT]. Chi bat cho preload nen.
+- Ket qua den sau cap: request SDK van bay, luot moi da bat dau -> co the thua 1 ad cung khoa; chap nhan, ghi nhan va test.
+6.4 InterCap / App Open [DE XUAT - CAN OWNER, xem Q-A]
+- Lib cu mien tru App Open va rewarded khoi cap cua interstitial. v3: chi dung chung "khoang nghi toi thieu sau khi bat ky full-screen nao dong" (minGapAfterFullScreen); KHONG dem App Open vao dailyCap / oneInN cua interstitial.
+6.5 Test mode (R22-R27)
+- InterCap.effectiveInterval = max(config, 60s) neu TestMode; NativeRefresher bo qua khi TestMode; gone_in_test_mode ap cho native/inter/app-open, KHONG ap rewarded (giong lib cu) [DE XUAT, Q-C].
+- R27a tieu de native chua "Test Ad"; R27b: tong doanh thu onAdPaid (valueMicros) = 0 tren may moi -> an native toi impression doanh thu dau tien. Can mo ta ro: ad da load nhung bi an co tinh la request da ton, log ro de QA khong nham.
+6.6 Kiem tra lai LUC SHOW (M11)
+- Truoc show: enable placement, kill switch, premium, canRequestAds, het han (4h/55p). Premium bat -> flush pool, huy lop phu/man cho dang mo.
+6.7 Thread (M12)
+- Mot dispatcher main tuan tu duy nhat cho moi callback; khong "chay ngay neu dang o main". Pool/Gate giam tren do. Do thread thuc te o app mau de xac nhan.
+
+=====================================================================
+7. APP OPEN KHI QUAY LAI (R33) - BAT BUOC (sua H6, H7, H8, M7)
+=====================================================================
+Hanh vi [CHOT Q15] giong AppOpenResumeHelper cu:
+- Lan quay lai DAU TIEN chua co ad: tai 1 ad luc do, hien lop phu toan man hinh + progress, show NGAY khi ad ve neu app con foreground trong reactiveShowTimeout (mac dinh doc tu lib cu o GD2).
+- Sau khi da hien/thu 1 lan: preload 1 ad ke tiep; cac lan quay lai sau chi hien ad da cache, KHONG chan, KHONG tai phan ung.
+- Lan quay lai khong co ad cache (het han/preload loi): tai im lang cho lan sau, lan nay khong hien gi.
+BO SUNG tu review [DE XUAT]:
+- H8: lop phu chi o lan quay lai dau cua moi process (ARM sau lan thu dau BAT KE ket qua), khong lap o moi lan quay lai khi no-fill. Lop phu co han toi da (overlayMaxMs), khong the ket (R3).
+- Dieu kien hien: nen >= minBackgroundMs (mac dinh 0 nhu lib cu [CHOT owner 2026-11-22], cau hinh duoc); canRequestAds; khong Premium; ad < 4h; FullScreenGate Idle (M8); khong ngay sau khi full-screen dong (minGapAfterFullScreen).
+- BO QUA lan resume ke tiep: (a) sau moi onAdClicked cua native/banner/inter (H7); (b) khi ConsentGate/form dang hien (H6a); (c) ngay sau ActivityResult / SAF picker / share / print / "Open with" (H6c, Ads.appOpen.pauseForExternalFlow hoac tu dong theo lifecycle);
+  (d) khi Activity nam trong excludedActivities (man khoa/PIN, onboarding, dialog).
+- pauseForExternalFlow(maxMs) TU HET HAN (mac dinh 60s) va chi hieu luc cho MOT lan quay lai (kieu suppressNextResume cu); app quen resume() khong lam App Open tat vinh vien (H6).
+- Thanh toan (H6b): khi billing dang xu ly app goi pauseForExternalFlow; va premium kiem tra lai luc show (6.6) nen tra tien xong khong hien ad.
+- Lop phu gan voi MOT host Activity cu the (WeakReference), go khi host stop/destroy, khong giu Activity trong singleton; show ad tren Activity top hien tai sau khi kiem tra lai (M7).
+- BACK khi co lop phu: CHAN Back (nuot su kien) cho den khi lop phu het (ad ve va hien, loi, hoac het overlayMaxMs) [CHOT owner 2026-11-22].
+  Rang buoc de khong ket (R2/R3): overlayMaxMs BAT BUOC co tran cung (khong cau hinh thanh vo han); lop phu luon go khi host stop/destroy hoac Premium bat; chan Back chi trong luc lop phu dang hien.
+- Tach de test: ForegroundSource, ActivityTracker, Clock; dung coroutine delay (virtual time).
+
+=====================================================================
+8. NATIVE / UI / BO NHO
+=====================================================================
+- SDK khong co template; lib kem vai layout (lon, nho, compact, o vuong, toan man hinh), app co the thay.
+- AdChoices do SDK chen (setAdChoicesPlacement). Nhan "Ad": NativeAdAttribution(text="Ad") (string resource dich duoc); moi asset trong NativeAdView; khong click handler tuy y len native; bat hardware acceleration cho video; de cho AdChoices.
+  Debug: canh bao khi layout app thieu view attribution hoac parent co clickable (L3). Doc https://support.google.com/admob/answer/6329638#ad-attribution truoc khi chot (CHUA DOC).
+- Native giu theo khoa (screenScope, ordinal) trong ViewModel-scope (NavBackStackEntry) -> xoay man khong destroy/request lai; clear o onCleared (M5).
+- Tran hieu dung = max(8, so o dang visible + 1); nha theo LRU "lan cuoi visible" (F3), khong tinh khoang cach. Khi nha, destroy(); cuon lai lay ad moi tu pool (ngoai le co y cua R39, chi trong tran).
+- Do bo nho 30 o native co media tren may 2GB o app mau.
+- Compose: AndroidView cho banner; native dung compose_utils.
+
+=====================================================================
+9. TEST (sua muc E review)
+=====================================================================
+- Bang yeu cau -> test: moi tieu chi 1 test; nhieu input cung hanh vi -> 1 test dang bang.
+- Fake AdGateway: callback thread ngau nhien, thu tu ngau nhien, co ca KHONG BAO GIO tra, co ca tra sau cap. Dung cho M1, M2, M5, M12 (nguoi cho nhieu, single-flight theo luot).
+- Fake ConsentInformation: form hien lau hon timeout; update loi nhung canRequestAds=true; consent den muon -> init muon; chuyen trang false->true.
+- Config parser: bang "" / null / "{}" / "{" / chuoi so "15000" / "true" / "MAX" / JSON co list_ads (warning) / sai kieu tung truong; moi truong thieu -> default placement; khong default -> tat.
+- FullScreenGate: watchdog (khong co dismiss), Reserved/Showing, premium bat giua chung, showThen action luon chay (ca recreate).
+- App Open resume: lan dau no-fill, Back khi co lop phu, xoay man, ra background giua chung, ad ve sau timeout, click native roi quay lai, form consent dang mo, pause khong resume (tu het han), ARM sau lan dau.
+- Native Compose: kiem tay + screenshot (khong co test tu dong cho dang ky asset/attribution/click).
+- Phu thuoc thoi gian: Clock + virtual time, khong Thread.sleep.
+
+=====================================================================
+10. CHI PHI/RUI RO CON LAI VA BUOC DAU GD2
+=====================================================================
+Rui ro: thread callback chua tai lieu hoa; native Compose chua co tai lieu dang ky asset (doc ma nguon compose_utils dau tien); attribution; R27b an native tren may moi.
+Buoc dau GD2 (it rui ro, lam duoc ngay): AdGateway + do thread callback thuc te trong app mau + doc compose_utils + khung ads-testing.
+Sau khi owner duyet v3: config parser + test bang -> ConsentGate/Bootstrap -> Pool -> FullScreenGate/Inter/Rewarded -> AppOpenResume -> ads-ui-compose -> app mau -> README -> huong dan migrate ColorVerse (kem LegacyConfigReader + xu ly H1: ghi JSON kep hoac dieu kien Remote Config theo version app, vi app ColorVerse cu chi doc list_ads).
+
+=====================================================================
+11. CAU HOI CON LAI (can owner)
+=====================================================================
+Q-A. App Open co tinh vao dailyCap/oneInN cua interstitial khong? De xuat: KHONG; chi dung chung khoang nghi toi thieu sau full-screen (6.4).
+Q-B. total_timeout_ms co tinh high floor khong? De xuat: KHONG, high floor co cap rieng ~30s va tu bo khi co nguoi cho (6.3).
+Q-C. gone_in_test_mode ap dung rewarded khong? De xuat: KHONG (giong lib cu).
+Q-D. [DA CHOT] minBackgroundMs mac dinh = 0 (nhu lib cu).
+Q-E. Lop phu chi o lan quay lai dau moi process (de xuat) hay moi lan chua co ad cache (co the lap khi no-fill)? Q15 chot "lan dau"; xac nhan hieu dung la "lan dau moi process".
+Q-F. [DA CHOT] Back khi co lop phu = CHAN Back toi khi lop phu het (co tran overlayMaxMs).
+Q-G. Consent: app goi Ads.consent.gather(activity) (de xuat, ro rang) hay lib tu hook Activity dau tien?
+Q-H. Watchdog full-screen tran 2 phut va pauseForExternalFlow mac dinh 60s: dong y?
+Loi file prompt (owner tu sua): dong 48 -> "App Open khi quay lai app = LAM (R33)"; R34 -> "Chua lam: Splash"; dong 41 -> dien package/BOM/publish (da tra loi o muc 0).
