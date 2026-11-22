@@ -1,4 +1,14 @@
 <resources>
     <string name="app_name">AdLib Sample</string>
     <string name="hello">AdLib sample</string>
+    <string name="probe_init">Init</string>
+    <string name="probe_clear">Clear</string>
+    <string name="probe_load_inter">Load Inter</string>
+    <string name="probe_load_rewarded">Load Rew</string>
+    <string name="probe_load_appopen">Load AppOpen</string>
+    <string name="probe_load_native">Load Native</string>
+    <string name="probe_load_banner">Load Banner</string>
+    <string name="probe_show_inter">Show Inter</string>
+    <string name="probe_show_rewarded">Show Rew</string>
+    <string name="probe_show_appopen">Show AppOpen</string>
 </resources>
