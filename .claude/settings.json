@@ -1,0 +1,57 @@
+{
+  "model": "sonnet",
+  "env": {
+    "CLAUDE_CODE_SUBAGENT_MODEL": "sonnet"
+  },
+  "permissions": {
+    "allow": [
+      "Bash(./gradlew:*)",
+      "Bash(adb devices:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(git branch:*)",
+      "Bash(git rev-parse:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git checkout:*)",
+      "Bash(git switch:*)",
+      "Bash(git fetch:*)",
+      "Bash(git pull:*)",
+      "Bash(git merge main:*)",
+      "Bash(git merge origin/main:*)",
+      "Bash(git merge --abort:*)",
+      "Bash(./scripts/check.sh:*)",
+      "Bash(./scripts/test-quick.sh:*)",
+      "Bash(./scripts/changed-scope.sh:*)",
+      "Bash(./scripts/merge-task.sh:*)",
+      "Bash(./scripts/run-sprint.sh:*)"
+    ],
+    "deny": [
+      "Bash(git push --force:*)",
+      "Bash(git push -f:*)",
+      "Bash(git push origin main:*)",
+      "Bash(git push origin HEAD:main:*)",
+      "Bash(git merge feat/:*)",
+      "Bash(git merge fix/:*)",
+      "Bash(git merge test/:*)",
+      "Bash(git merge chore/:*)",
+      "Bash(./gradlew publish:*)",
+      "Bash(./gradlew bundleRelease:*)",
+      "Bash(./gradlew assembleRelease:*)",
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(./**/*.jks)",
+      "Read(./**/*.keystore)",
+      "Edit(./local.properties)",
+      "Read(./.gradle/**)",
+      "Read(./**/build/intermediates/**)",
+      "Read(./**/build/tmp/**)",
+      "Read(./**/build/generated/**)",
+      "Read(./logs/**)",
+      "Edit(./.claude/automerge.conf)",
+      "Write(./.claude/automerge.conf)"
+    ]
+  }
+}
