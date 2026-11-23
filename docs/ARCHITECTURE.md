@@ -7,7 +7,7 @@
 | ads-testing | com.example.adlib.testing | Fakes (AdGateway, consent, clock, foreground). Depends on ads-core. |
 | sample | com.example.adlib.sample | Demo app. |
 
-Design: `BookReader/docs/ads-lib-phase1-v3.txt` (sections 0, 1, 2, 10). Not copied here.
+Design: `docs/ads-lib-phase1-v3.txt` (v3 wins). History: `docs/history/`. Work board: `docs/TASKS.md`.
 Current code:
 - `core.config`: `PlacementConfig` (+ `AdTiers`, `HighFloorTier`, `AdUnitTier`, `RefreshConfig`, `PlacementDefault`) and internal `ConfigParser` (new schema, design section 3; warnings via `ConfigWarningSink`).
 - `core.consent`: `ConsentSource` (UMP isolation; load and show of the form are separate so the 10s timeout never covers the form on screen), `UmpConsentSource`, `ConsentGate` (process-level `canRequestAds` / `privacyOptionsRequired` / `formShowing` StateFlows, single-flight `gather`, late UMP answers still refresh).
