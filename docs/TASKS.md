@@ -212,7 +212,7 @@ Collapsible banners, refresh rules beyond SDK defaults.
 - 2026-11-23 QA APPROVED f2eb6b7 round 1; stacked on T9 branch; waiting for owner merge after T9 (protected paths come from T9); owner-check:needed
 
 ## T11 — Ads.install facade + AdsOptions
-- Status: in-progress
+- Status: review
 - Type: feature · Size: m · Complex: no · Priority: p1 · Depends on: T1, T2, T3, T4, T5, T6, T7
 ### Goal
 The public entry point of v3 section 4: `Ads.install(application, AdsOptions(...))`, main process only (L6), wiring ConsentGate, AdsBootstrap, pool, gates, events.
@@ -230,6 +230,7 @@ LegacyConfigReader (dropped, owner 2026-11-23).
 ### Files likely touched
 `ads-core/.../core/Ads.kt`, `AdsOptions.kt` (new), tests.
 ### Log
+- 2026-11-23 QA APPROVED 91b0aad round 1; stacked on T10 (on T9); waiting for owner merge after T9, T10 (protected: ads-core/build.gradle.kts, ads-ui-compose/build.gradle.kts, gradle/libs.versions.toml); owner-check:needed
 
 ## T12 — Sample app: demo UI for every format
 - Status: backlog
@@ -278,6 +279,7 @@ Build and test the library inside this repo's `sample` app, then document it. No
 - [ ] `docs/sample-smoke.md`: checklist per format (loaded / shown / dismissed / gone on premium / showThen action ran / reward earned / app-open on return), result pass/fail/not-run with the evidence line or screenshot.
 - [ ] No device: build part done, every device row `not-run — no device`, report `DEV: CHECK PASS` for the build and put "device smoke test needed" in NOTES_FOR_OWNER (T13 has the same device requirement — do both in one device session).
 - [ ] `README.md`: install, consent, placements + config schema, test mode, sample app, how to run the smoke test; publishing groupId still PLACEHOLDER; ktlint/detekt not added yet.
+- [ ] README: call Ads.appOpen.attachResume(); revenueStore/capStore default in-memory (caps reset on process death); ageRestricted not supported yet (from T11 QA)
 ### Out of scope
 Code fixes (file each failure as a bug task via the orchestrator).
 ### Files likely touched
@@ -285,7 +287,7 @@ Code fixes (file each failure as a bug task via the orchestrator).
 ### Log
 
 ## T15 — Hardening: pool total-timeout leak window, gateway exceptions, idempotent destroy
-- Status: ready
+- Status: in-progress
 - Type: bug · Size: m · Complex: no · Priority: p2 · Depends on: none
 ### Goal
 Two small defects QA found in T3 (non-blocking there).
