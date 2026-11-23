@@ -73,6 +73,13 @@ internal class AdPool(
     private val slots = LinkedHashMap<PoolKey, Slot>()
     private val loadsInFlight = HashMap<AdFormat, Int>()
 
+    private val preloadFailedListeners = mutableListOf<(Placement) -> Unit>()
+
+    /** Called (serial scope) when a background preload load ended with no ad. Lets a format retry with its own rule. */
+    fun addPreloadFailedListener(listener: (Placement) -> Unit) {
+        preloadFailedListeners += listener
+    }
+
     init {
         scope.launch { state.isPremium.collect { if (it) flush() } }
     }
@@ -152,6 +159,7 @@ internal class AdPool(
                     // More waiters than loads still running: the oldest one gets NoAd (no retry loop).
                     slot.waiters.size > slot.inFlight -> answer(slot, slot.waiters.first(), null)
                 }
+                if (entry == null && preload) preloadFailedListeners.forEach { it(placement) }
                 pump(format)
             }
         }
