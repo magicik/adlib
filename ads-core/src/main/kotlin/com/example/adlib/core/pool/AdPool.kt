@@ -31,7 +31,7 @@ internal enum class AdTier { HIGH_FLOOR, NORMAL }
 /** A loaded ad held by the pool. [loadedAt] is from the pool's [Clock]. */
 internal class PoolEntry(val handle: AdHandle, val tier: AdTier, val loadedAt: Long, val placement: Placement)
 
-internal data class PoolOptions(
+data class PoolOptions(
     /** Ads kept per key; a full key starts no preload (P5/P7). */
     val maxPerKey: Int = 2,
     /** Loads running at once per format, shared by all keys of that format (P6). */

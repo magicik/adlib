@@ -11,13 +11,14 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.adlib.core.Ads
 import com.example.adlib.core.nativead.NativeAdSource
 import com.example.adlib.core.placement.Placement
 import com.google.android.libraries.ads.mobile.sdk.nativead.NativeAd as SdkNativeAd
 
-/** The lib's native source. `Ads.install` provides it (T11); tests and previews may provide a fake. */
+/** The lib's native source. Defaults to `Ads.native` (needs `Ads.install`); tests and previews may provide a fake. */
 val LocalNativeAdSource = staticCompositionLocalOf<NativeAdSource> {
-    error("No NativeAdSource: call Ads.install or provide LocalNativeAdSource")
+    Ads.native
 }
 
 /** Holds a screen's native ads; scoped to the current ViewModelStoreOwner (NavBackStackEntry), M5. */

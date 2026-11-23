@@ -29,6 +29,7 @@ dependencies {
     api(libs.ads.mobile.sdk)
     api(libs.google.ump)
     api(libs.kotlinx.coroutines.android)
+    implementation(libs.androidx.activity)
 
     testImplementation(libs.junit)
     testImplementation(libs.mockk)
