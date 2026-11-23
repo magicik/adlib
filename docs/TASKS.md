@@ -97,7 +97,7 @@ Format-specific show code (T5/T6/T7).
 - 2026-11-23 merged 79b271f; QA rounds 1; owner-check:needed (device: real AdActivity resume vs watchdog; confirm rewarded ignores the gap)
 
 ## T5 — Interstitial: preload + showThen + caps
-- Status: in-progress
+- Status: done
 - Type: feature · Size: m · Complex: no · Priority: p1 · Depends on: T2, T3, T4
 ### Goal
 `Ads.interstitial.preload(placement)` and `showThen(activity, placement) { action() }` where the action ALWAYS runs. v3 4, 6.2, 6.4, 6.6; R28-R31.
@@ -114,9 +114,10 @@ Splash (not in GD2).
 ### Files likely touched
 `ads-core/.../core/fullscreen/interstitial/` (new), tests.
 ### Log
+- 2026-11-23 merged 06fefd4; QA rounds 3 (dev x2 -> dev-senior); owner-check:needed (device: rotate during ad, back/background during ad; awaitLiveHost unbounded by design; old lib had no retry rule, v1 5s/15s used)
 
 ## T6 — Rewarded
-- Status: ready
+- Status: in-progress
 - Type: feature · Size: m · Complex: no · Priority: p1 · Depends on: T3, T4
 ### Goal
 `Ads.rewarded.isAvailable/isAllowed(placement): Flow<Boolean>` and `request(activity, placement, onEarned, onClosed, onUnavailable)`. v3 4, 6.2; R32 (waiting screen, timeout 10s, 3 separate callbacks).
