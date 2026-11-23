@@ -50,6 +50,7 @@ class OverlaySessionTest {
         val s = FakeSurface(failAdd = true)
         OverlaySession(s).start().hide()
         assertEquals(false, s.blocked)
+        assertEquals("a frame added before the throw is removed, once", 1, s.removed)
     }
 
     @Test

@@ -45,6 +45,10 @@ class FakeAdHandle(
 ) : InterstitialHandle, RewardedHandle, AppOpenHandle, NativeHandle, BannerHandle {
     var destroyed = false
         private set
+
+    /** Real destroys: a repeated [destroy] is ignored, like the SDK handle (one late callback must not destroy twice). */
+    var destroyCalls = 0
+        private set
     override val headline: String? = "headline"
     override val body: String? = "body"
     override val callToAction: String? = "cta"
@@ -53,6 +57,8 @@ class FakeAdHandle(
     override val view: View? = null
 
     override fun destroy() {
+        if (destroyed) return
+        destroyCalls++
         destroyed = true
     }
 }
@@ -82,6 +88,9 @@ class FakeAdGateway(
     /** When set, every full-screen show throws this from the show call itself (no callback follows). */
     var showThrows: RuntimeException? = null
 
+    /** When set, every load call throws this from the call itself (no callback follows). */
+    var loadThrows: RuntimeException? = null
+
     val loadRequests = mutableListOf<Pair<AdFormat, String>>()
     val shown = mutableListOf<AdHandle>()
 
@@ -108,6 +117,7 @@ class FakeAdGateway(
         callback: (LoadResult<T>) -> Unit,
     ) {
         loadRequests += format to adUnitId
+        loadThrows?.let { throw it }
         val behavior = next(format)
         if (behavior is FakeBehavior.Never) return
         scope.launch {

@@ -19,12 +19,9 @@ import com.example.adlib.core.pool.AdPool
 import com.example.adlib.core.state.AdsState
 import com.example.adlib.core.testmode.TestMode
 import com.example.adlib.core.time.Clock
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
@@ -158,10 +155,17 @@ internal class AppOpenResumeController(
                 val firstTry = !armed
                 armed = true
                 val handle = when {
-                    pool.hasFreshAd(placement) -> takeOwned(0L)
+                    pool.hasFreshAd(placement) -> pool.takeOwned(placement, 0L)
                     firstTry -> {
-                        cover = overlay.show(host)
-                        takeOwned(Long.MAX_VALUE) // bounded by the window
+                        try {
+                            cover = overlay.show(host)
+                        } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
+                            // A broken app overlay must not crash or hold the gate: report, keep the ad coming for next time.
+                            events.emit(AdsEvent.LoadFailed(placement.name, null, OVERLAY_THREW, e.toString()))
+                            pool.preload(placement)
+                            return@withTimeoutOrNull
+                        }
+                        pool.takeOwned(placement, Long.MAX_VALUE) // bounded by the window
                     }
                     else -> {
                         pool.preload(placement)
@@ -171,7 +175,7 @@ internal class AppOpenResumeController(
                 showing = show(owner, handle)
             }
         } finally {
-            cover?.hide()
+            runCatching { cover?.hide() } // a throwing hide must not keep the gate
             if (!showing) gate.release(owner)
         }
     }
@@ -180,21 +184,6 @@ internal class AppOpenResumeController(
     private suspend fun awaitResumedHost(): Activity {
         tracker.appResumes.first { tracker.resumedActivity != null }
         return checkNotNull(tracker.resumedActivity)
-    }
-
-    /**
-     * [AdPool.take] as a child: if this flow is cancelled after the ad was handed over, nobody will show
-     * it, so it is destroyed instead of lost.
-     */
-    private suspend fun takeOwned(timeoutMs: Long): AdHandle? = coroutineScope {
-        val take = async { pool.take(placement, timeoutMs) }
-        try {
-            take.await()
-        } catch (e: CancellationException) {
-            take.cancel()
-            if (take.isCompleted && !take.isCancelled) take.getCompleted()?.let { gateway.destroy(it) }
-            throw e
-        }
     }
 
     /**
@@ -254,5 +243,6 @@ internal class AppOpenResumeController(
 
     private companion object {
         const val SHOW_THREW = "SHOW_THREW"
+        const val OVERLAY_THREW = "OVERLAY_THREW"
     }
 }

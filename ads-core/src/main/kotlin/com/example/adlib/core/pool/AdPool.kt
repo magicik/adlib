@@ -19,6 +19,8 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
@@ -126,6 +128,24 @@ internal class AdPool(
         waiter.entry?.handle
     }
 
+    /**
+     * [take] as a child of the caller; the ONE place that destroys an ad handed over after the caller was
+     * cancelled (nobody will show it). [onTaking] gets the child job so an owner can cancel just the wait.
+     * Null = NoAd or the child was cancelled.
+     */
+    suspend fun takeOwned(placement: Placement, timeoutMs: Long, onTaking: (Job) -> Unit = {}): AdHandle? = coroutineScope {
+        val child = async { take(placement, timeoutMs) }
+        onTaking(child)
+        try {
+            child.join()
+        } catch (e: CancellationException) {
+            child.cancel()
+            if (child.isCompleted && !child.isCancelled) child.getCompleted()?.let { gateway.destroy(it) }
+            throw e
+        }
+        if (child.isCancelled) null else child.getCompleted()
+    }
+
     /** True when a non-expired ad is pooled for [placement]'s key; read-only (does not purge or take). */
     suspend fun hasFreshAd(placement: Placement): Boolean = withContext(confined) {
         requirePooled(placement)
@@ -187,25 +207,37 @@ internal class AdPool(
         if (useHighFloor) {
             attempt(slot, placement, highFloor.adUnit, AdTier.HIGH_FLOOR, options.highFloorCapMs)?.let { return it }
         }
-        return withTimeoutOrNull(config.totalTimeoutMs) {
+        // The entry is kept outside the block: a total timeout firing right after an attempt produced it would
+        // make withTimeoutOrNull return null and lose the loaded handle.
+        var found: PoolEntry? = null
+        withTimeoutOrNull(config.totalTimeoutMs) {
             for (tier in config.enabledAds) {
-                attempt(slot, placement, tier.adUnit, AdTier.NORMAL, tier.timeoutMs)?.let { return@withTimeoutOrNull it }
+                found = attempt(slot, placement, tier.adUnit, AdTier.NORMAL, tier.timeoutMs)
+                if (found != null) break
             }
-            null
         }
+        return found
     }
 
     /** One SDK request. Gives up after [timeoutMs] (or when abandoned); a later answer is handled as late. */
     private suspend fun attempt(slot: Slot, placement: Placement, adUnit: String, tier: AdTier, timeoutMs: Long): PoolEntry? {
         val attempt = Attempt()
         if (tier == AdTier.HIGH_FLOOR) slot.highFloorAttempts += attempt
-        load(slot.key.format, adUnit) { result ->
-            if (!attempt.closed) {
-                attempt.result = result
-                attempt.answered.complete(Unit)
-            } else if (result is LoadResult.Loaded) {
-                accept(slot, loaded(placement, result.handle, tier))
+        try {
+            load(slot.key.format, adUnit) { result ->
+                if (!attempt.closed) {
+                    attempt.result = result
+                    attempt.answered.complete(Unit)
+                } else if (result is LoadResult.Loaded) {
+                    accept(slot, loaded(placement, result.handle, tier))
+                }
             }
+        } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
+            // A gateway that throws ends this attempt as a failed load, never as a crash.
+            attempt.closed = true
+            slot.highFloorAttempts -= attempt
+            events.emit(AdsEvent.LoadFailed(placement.name, adUnit, LOAD_THREW, e.toString()))
+            return null
         }
         try {
             withTimeoutOrNull(timeoutMs) { attempt.answered.await() }
@@ -343,6 +375,7 @@ internal class AdPool(
         const val APP_OPEN_TTL_MS = 4 * 60 * 60 * 1000L
         const val DEFAULT_TTL_MS = 55 * 60 * 1000L
         const val LIB_TIMEOUT = "LIB_TIMEOUT"
+        const val LOAD_THREW = "LOAD_THREW"
 
         fun ttlMs(format: AdFormat): Long = if (format == AdFormat.APP_OPEN) APP_OPEN_TTL_MS else DEFAULT_TTL_MS
     }

@@ -18,14 +18,11 @@ import com.example.adlib.core.pool.AdPool
 import com.example.adlib.core.state.AdsState
 import com.example.adlib.core.testmode.TestMode
 import com.example.adlib.core.time.Clock
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -128,19 +125,7 @@ internal class InterstitialController(
             if (!gate.reserve(owner)) return
             // Counted only once the gate is ours: a gate-busy attempt must not use up a oneInN attempt.
             if (caps.tryConsume() != CapDecision.ALLOWED) return
-            val handle = coroutineScope {
-                val take = async { pool.take(placement, options.waitForAdMs) }
-                taking = take
-                try {
-                    take.join()
-                } catch (e: CancellationException) {
-                    // Owner cancelled: nobody will read a handle that already arrived.
-                    take.cancel()
-                    if (take.isCompleted && !take.isCancelled) take.getCompleted()?.let { gateway.destroy(it) }
-                    throw e
-                }
-                if (take.isCancelled) null else take.getCompleted()
-            } ?: return
+            val handle = pool.takeOwned(placement, options.waitForAdMs) { taking = it } ?: return
             preloadFailures.remove(placement.name)
 
             val activity = host.get()

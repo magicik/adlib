@@ -194,7 +194,16 @@ private abstract class SdkHandle(
     override val loadedAt: Long,
     private val sdkAd: Ad,
 ) : AdHandle {
-    override fun destroy() = sdkAd.destroy()
+    private var destroyed = false
+
+    /** Idempotent: a late SDK callback after a failed show must not destroy the same ad twice. */
+    override fun destroy() {
+        if (destroyed) return
+        destroyed = true
+        destroyAd()
+    }
+
+    protected open fun destroyAd() = sdkAd.destroy()
 }
 
 private class SdkInterstitial(val ad: InterstitialAd, unit: String, at: Long) :
@@ -219,5 +228,5 @@ private class SdkBanner(val ad: BannerAd, private val adView: AdView, unit: Stri
     SdkHandle(unit, AdFormat.BANNER, at, ad), BannerHandle {
     override val view: View get() = adView
 
-    override fun destroy() = adView.destroy()
+    override fun destroyAd() = adView.destroy()
 }

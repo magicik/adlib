@@ -9,7 +9,11 @@ class FakeAppOpenOverlay : AppOpenOverlay {
     var visible = 0
         private set
 
+    /** When set, [show] throws this. */
+    var showThrows: RuntimeException? = null
+
     override fun show(host: Activity): AppOpenOverlay.Shown {
+        showThrows?.let { throw it }
         hosts += host
         visible++
         var hidden = false

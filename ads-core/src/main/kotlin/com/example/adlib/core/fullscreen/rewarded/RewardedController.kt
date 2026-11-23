@@ -17,12 +17,9 @@ import com.example.adlib.core.pool.AdPool
 import com.example.adlib.core.state.AdsState
 import com.example.adlib.core.testmode.TestMode
 import com.example.adlib.core.time.Clock
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -114,18 +111,7 @@ internal class RewardedController(
             if (!isAlive(host.get())) return
             if (!state.isAdAllowed(placement)) return
             if (!gate.reserve(owner)) return
-            val handle = coroutineScope {
-                val take = async { pool.take(placement, options.waitForAdMs) }
-                taking = take
-                try {
-                    take.join()
-                } catch (e: CancellationException) {
-                    take.cancel()
-                    if (take.isCompleted && !take.isCancelled) take.getCompleted()?.let { gateway.destroy(it) }
-                    throw e
-                }
-                if (take.isCancelled) null else take.getCompleted()
-            } ?: return
+            val handle = pool.takeOwned(placement, options.waitForAdMs) { taking = it } ?: return
 
             val activity = host.get()
             val expired = clock.nowMs() - handle.loadedAt >= AdPool.ttlMs(AdFormat.REWARDED)

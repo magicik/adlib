@@ -54,6 +54,15 @@ class FakeAdGatewayTest {
     }
 
     @Test
+    fun `destroying a handle twice destroys it once like the SDK handle`() {
+        val handle = FakeAdHandle("u", AdFormat.INTERSTITIAL, 0)
+        gateway().destroy(handle)
+        handle.destroy()
+        assertEquals(1, handle.destroyCalls)
+        assertTrue(handle.destroyed)
+    }
+
+    @Test
     fun `same seed gives the same random completion order`() {
         fun order(seed: Long): List<String> {
             val localScope = TestScope(StandardTestDispatcher())

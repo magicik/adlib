@@ -336,6 +336,19 @@ class AppOpenResumeControllerTest {
     }
 
     @Test
+    fun `an overlay whose show throws does not crash, frees the gate, reports and keeps the ad coming`() = runTest {
+        val env = Env(this)
+        env.overlay.showThrows = IllegalStateException("overlay boom")
+        env.launch()
+        env.roundTrip() // runTest fails on an uncaught exception
+        assertEquals(GateState.Idle, env.gate.state.value)
+        assertEquals(0, env.gateway.shown.size)
+        assertEquals(1, env.events.count { it is AdsEvent.LoadFailed && it.code == "OVERLAY_THREW" })
+        assertEquals("ad preloaded for next time", 1, env.requests())
+        env.assertNoLeak()
+    }
+
+    @Test
     fun `rotation keeps state - the ad shows on the new top Activity and rotation is not a return`() = runTest {
         val env = Env(this)
         env.gateway.script(AdFormat.APP_OPEN, Load(2_000))
