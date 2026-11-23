@@ -137,7 +137,7 @@ Waiting-screen UI (app supplies it; lib exposes state).
 - 2026-11-23 merged 5a0df1b; QA rounds 2; owner-check:needed (device: onEarned before onClosed; reward after watchdog release needs owner decision; isAllowed/isAvailable poll 1s; rewarded preload has no retry)
 
 ## T7 — App Open on resume: rules and state machine
-- Status: in-progress
+- Status: done
 - Type: feature · Size: m · Complex: yes · Priority: p1 · Depends on: T3, T4
 ### Goal
 The mandatory App Open on return to the app (R33), logic only (overlay view = T8). v3 7, Q-D, Q-E, Q-H.
@@ -157,9 +157,10 @@ Overlay drawing and Back handling (T8), Splash.
 ### Files likely touched
 `ads-core/.../core/appopen/` (new), `core/consent/ConsentGate.kt`, `ads-testing/` fakes, tests.
 ### Log
+- 2026-11-23 merged 0d8b2c2; QA rounds 1; owner-check:none (device check when T11 wires it: show after onResume, no WatchdogFired; any Clicked skips next return)
 
 ## T8 — App Open overlay + Back blocking
-- Status: backlog
+- Status: ready
 - Type: feature · Size: s · Complex: no · Priority: p1 · Depends on: T7
 ### Goal
 Full-screen scrim + progress on the first return, Back swallowed while it shows (owner Q-F). v3 7 (M7, R2/R3).
@@ -208,7 +209,7 @@ Collapsible banners, refresh rules beyond SDK defaults.
 ### Log
 
 ## T11 — Ads.install facade + AdsOptions
-- Status: backlog
+- Status: ready
 - Type: feature · Size: m · Complex: no · Priority: p1 · Depends on: T1, T2, T3, T4, T5, T6, T7
 ### Goal
 The public entry point of v3 section 4: `Ads.install(application, AdsOptions(...))`, main process only (L6), wiring ConsentGate, AdsBootstrap, pool, gates, events.
