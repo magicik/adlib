@@ -57,7 +57,7 @@ UI hiding itself (T9 uses the flag).
 - 2026-11-23 merged 6ec8cd5; QA rounds 1; owner-check:needed (test device ids on device; shouldHideNative after a zero-value paid event; dropped "Ad Test" variant)
 
 ## T3 — AdPool (waiter-driven single-flight, tiers, expiry)
-- Status: in-progress
+- Status: done
 - Type: feature · Size: m · Complex: yes · Priority: p1 · Depends on: T1
 ### Goal
 The self-made pool for interstitial / rewarded / app open / native (no Preloader; banner is NOT pooled). v3 6.1, 6.3, Q-B; P1-P14, H1-H5.
@@ -76,9 +76,10 @@ Show logic, banner, UI.
 ### Files likely touched
 `ads-core/.../core/pool/` (new), `ads-testing/.../FakeAdGateway.kt` (if a behavior is missing), tests.
 ### Log
+- 2026-11-23 merged 3c4c99d; QA rounds 1; owner-check:none; nits filed as T15
 
 ## T4 — FullScreenGate + watchdog
-- Status: ready
+- Status: in-progress
 - Type: feature · Size: m · Complex: yes · Priority: p1 · Depends on: T1
 ### Goal
 One gate for every full-screen ad (interstitial, rewarded, app open) so two never overlap and a lost dismiss never blocks ads forever. v3 6.2, 6.4, Q-A, Q-H.
@@ -164,7 +165,7 @@ Compose-specific overlay.
 ### Log
 
 ## T9 — ads-ui-compose: Native
-- Status: backlog
+- Status: ready
 - Type: feature · Size: m · Complex: yes · Priority: p1 · Depends on: T2, T3
 ### Goal
 `NativeAd(placement, adIndex, loading) { ad -> }` for Compose using Google's compose_utils (copied, Apache-2.0 kept). v3 4, 8; `docs/compose-utils-notes.md`.
