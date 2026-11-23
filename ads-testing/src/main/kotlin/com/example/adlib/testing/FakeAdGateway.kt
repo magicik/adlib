@@ -79,6 +79,9 @@ class FakeAdGateway(
     /** When set, every full-screen show fails with this code instead of showing. */
     var showFailureCode: String? = null
 
+    /** When set, every full-screen show throws this from the show call itself (no callback follows). */
+    var showThrows: RuntimeException? = null
+
     val loadRequests = mutableListOf<Pair<AdFormat, String>>()
     val shown = mutableListOf<AdHandle>()
     val handles = mutableListOf<FakeAdHandle>()
@@ -142,6 +145,7 @@ class FakeAdGateway(
         load(AdFormat.BANNER, request.adUnitId, callback)
 
     private fun fullScreen(handle: AdHandle, listener: FullScreenAdListener) {
+        showThrows?.let { throw it }
         showFailureCode?.let { code ->
             dispatcher.post { listener.onFailedToShow(code, "fake") }
             return

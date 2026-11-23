@@ -106,6 +106,20 @@ class InterstitialControllerTest {
                 e.gateway.showFailureCode = "INTERNAL_ERROR"
                 e.show(placement)
             },
+            Case("show throws") { e ->
+                e.controller.preload(placement); runCurrent()
+                e.gateway.showThrows = IllegalStateException("fake")
+                e.show(placement)
+            },
+            Case("owner cancelled while showing, ad never closes (watchdog)", shownAds = 1) { e ->
+                e.controller.preload(placement); runCurrent()
+                val n = AtomicInteger()
+                val job = e.controller.showThen(e.activity, placement) { n.incrementAndGet() }
+                runCurrent()
+                job.cancel()
+                advanceTimeBy(FullScreenGateOptions().watchdogMs); runCurrent()
+                n
+            },
             Case("daily cap reached", shownAds = 1, options = InterstitialOptions(minIntervalMs = 0, dailyCap = 1)) { e ->
                 e.controller.preload(placement); runCurrent()
                 e.show(placement); runCurrent()

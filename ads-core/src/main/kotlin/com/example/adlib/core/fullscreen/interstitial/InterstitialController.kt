@@ -43,7 +43,7 @@ import java.lang.ref.WeakReference
  *
  * The gate is reserved before waiting for the ad and given back on every path that does not reach
  * `Showing` (the gate has no Reserved timeout by design); a Showing ad is freed by its dismiss, the show
- * error, or the gate watchdog.
+ * error (callback or a throwing show call), or the gate watchdog.
  */
 internal class InterstitialController(
     private val pool: AdPool,
@@ -78,14 +78,14 @@ internal class InterstitialController(
     fun showThen(activity: Activity, placement: Placement, action: () -> Unit): Job {
         requireInterstitial(placement)
         val host = WeakReference(activity)
-        val flow = ShowFlow()
+        val ended = CompletableDeferred<Unit>()
         return scope.launch {
             try {
-                tryShow(host, placement, flow)
+                tryShow(host, placement, ended)
             } finally {
                 withContext(NonCancellable) {
-                    // Cancelled while the ad is on screen: the action still waits for the ad to end (dismiss, error, watchdog).
-                    flow.showingEnd?.await()
+                    // Bounded: see tryShow. Cancelled while the ad is on screen, the action still waits for the ad to end.
+                    ended.await()
                     awaitLiveHost(host)
                     action()
                 }
@@ -108,25 +108,24 @@ internal class InterstitialController(
         }
     }
 
-    private class ShowFlow {
-        var showingEnd: CompletableDeferred<Unit>? = null
-    }
-
-    /** Returns when the ad was closed or no ad was shown; the caller then runs the action. */
-    private suspend fun tryShow(host: WeakReference<Activity>, placement: Placement, flow: ShowFlow) {
-        if (!isAlive(host.get())) return
-        if (!isAllowed(placement)) return
-        if (gate.isWithinGap()) return
-
+    /**
+     * Returns when the ad was closed or no ad was shown; the caller then awaits [ended] and runs the action.
+     * [ended] completes on every exit that does not leave the gate Showing (finally below); a Showing ad
+     * completes it by its dismiss, its show error, a throwing show, or the gate watchdog (forced release),
+     * so the wait is bounded by `watchdogMs`.
+     */
+    private suspend fun tryShow(host: WeakReference<Activity>, placement: Placement, ended: CompletableDeferred<Unit>) {
         var taking: Job? = null
-        val ended = CompletableDeferred<Unit>()
         val owner = GateOwner(placement.name) {
             taking?.cancel()
             ended.complete(Unit)
         }
-        if (!gate.reserve(owner)) return
         var showing = false
         try {
+            if (!isAlive(host.get())) return
+            if (!isAllowed(placement)) return
+            if (gate.isWithinGap()) return
+            if (!gate.reserve(owner)) return
             // Counted only once the gate is ours: a gate-busy attempt must not use up a oneInN attempt.
             if (caps.tryConsume() != CapDecision.ALLOWED) return
             val handle = coroutineScope {
@@ -156,18 +155,19 @@ internal class InterstitialController(
                 return
             }
             showing = true
-            flow.showingEnd = ended
+            val adListener = listener(owner, placement, handle, ended)
             try {
-                gateway.showInterstitial(handle, activity!!, listener(owner, placement, handle, ended))
+                gateway.showInterstitial(handle, activity!!, adListener)
             } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
-                gate.release(owner)
-                gateway.destroy(handle)
-                showing = false
-                return
+                // A show that throws ends like a failed show: same cleanup, and it completes [ended].
+                adListener.onFailedToShow(SHOW_THREW, e.toString())
             }
             ended.await()
         } finally {
-            if (!showing) gate.release(owner)
+            if (!showing) {
+                gate.release(owner)
+                ended.complete(Unit)
+            }
         }
     }
 
@@ -215,4 +215,8 @@ internal class InterstitialController(
 
     private fun requireInterstitial(placement: Placement) =
         require(placement.format == AdFormat.INTERSTITIAL) { "not an interstitial placement: ${placement.name}" }
+
+    private companion object {
+        const val SHOW_THREW = "SHOW_THREW"
+    }
 }
