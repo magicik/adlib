@@ -3,6 +3,7 @@ package com.example.adlib.core.bootstrap
 import android.content.Context
 import android.content.pm.PackageManager
 import com.google.android.libraries.ads.mobile.sdk.MobileAds
+import com.google.android.libraries.ads.mobile.sdk.common.RequestConfiguration
 import com.google.android.libraries.ads.mobile.sdk.initialization.InitializationConfig
 import kotlin.concurrent.thread
 
@@ -15,11 +16,12 @@ fun interface SdkInitializer {
  * Calls MobileAds.initialize on a dedicated thread (it is @WorkerThread). The listener fires when
  * adapters finished or after the SDK's own 30s timeout. [appId] defaults to the manifest meta-data
  * `com.google.android.gms.ads.APPLICATION_ID` (UMP needs it there too). [configure] runs before
- * build(), e.g. to set the RequestConfiguration (age-restricted treatment must be set BEFORE init).
+ * build(), after [testDeviceIds] (which become RequestConfiguration.setTestDeviceIds); a RequestConfiguration set in [configure] replaces it, so include the ids there. E.g. to set the RequestConfiguration (age-restricted treatment must be set BEFORE init).
  */
 class MobileAdsInitializer(
     context: Context,
     appId: String? = null,
+    private val testDeviceIds: List<String> = emptyList(),
     private val configure: InitializationConfig.Builder.() -> Unit = {},
 ) : SdkInitializer {
     private val appContext = context.applicationContext
@@ -27,7 +29,12 @@ class MobileAdsInitializer(
 
     override fun initialize(onComplete: () -> Unit) {
         thread(name = "AdLib-init", isDaemon = true) {
-            val config = InitializationConfig.Builder(appId).apply(configure).build()
+            val config = InitializationConfig.Builder(appId).apply {
+                if (testDeviceIds.isNotEmpty()) {
+                    setRequestConfiguration(RequestConfiguration.Builder().setTestDeviceIds(testDeviceIds).build())
+                }
+                configure()
+            }.build()
             MobileAds.initialize(appContext, config) { onComplete() }
         }
     }

@@ -16,3 +16,4 @@ Current code:
 - `core.placement`: `Placement`, `PlacementRegistry` (rejects duplicate names / poolKey with two formats: throws when strict, else warns and skips).
 - `core.state`: `ConfigProvider` (read on every lookup), internal `AdsState` (Premium flow, kill switch, `config(placement)`, `isAdAllowed` = one gate for load and show).
 - `core.events`: `AdsEvent`, `AdsEventListener`, internal `AdsEventBus` (delivers on the serial dispatcher, swallows listener exceptions).
+- `core.testmode`: `RevenueStore` (app persistence), internal `TestMode`. Rule (ported from old `TestAdGuard`): test mode = a native with "Test Ad" headline was seen OR paid events were seen but no currency has a positive total; fresh install = not test mode. Totals are per currency. R27b: no paid event yet => native hidden until first paid impression (`AdsEvent.HiddenOnPurpose`). `MobileAdsInitializer(testDeviceIds)` sets RequestConfiguration before init. ads-testing: `FakeRevenueStore`.
