@@ -37,7 +37,7 @@ The process-level state every later component reads: registered placements, per-
 - 2026-11-23 merged 683861c; QA rounds 1; owner-check:none
 
 ## T2 — Test mode (R22-R27)
-- Status: in-progress
+- Status: done
 - Type: feature · Size: m · Complex: no · Priority: p1 · Depends on: T1
 ### Goal
 Lib-side test mode, as in the old library (no SDK API says "this is a test device"). v3 6.5, v1 2.3, v2 A.9.
@@ -54,6 +54,7 @@ UI hiding itself (T9 uses the flag).
 ### Files likely touched
 `ads-core/.../core/testmode/` (new), `core/bootstrap/SdkInitializer.kt`, `ads-testing/.../FakeRevenueStore.kt` (new), tests.
 ### Log
+- 2026-11-23 merged 6ec8cd5; QA rounds 1; owner-check:needed (test device ids on device; shouldHideNative after a zero-value paid event; dropped "Ad Test" variant)
 
 ## T3 — AdPool (waiter-driven single-flight, tiers, expiry)
 - Status: ready
