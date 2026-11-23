@@ -160,7 +160,7 @@ Overlay drawing and Back handling (T8), Splash.
 - 2026-11-23 merged 0d8b2c2; QA rounds 1; owner-check:none (device check when T11 wires it: show after onResume, no WatchdogFired; any Clicked skips next return)
 
 ## T8 — App Open overlay + Back blocking
-- Status: in-progress
+- Status: done
 - Type: feature · Size: s · Complex: no · Priority: p1 · Depends on: T7
 ### Goal
 Full-screen scrim + progress on the first return, Back swallowed while it shows (owner Q-F). v3 7 (M7, R2/R3).
@@ -174,9 +174,10 @@ Compose-specific overlay.
 ### Files likely touched
 `ads-core/.../core/appopen/` (overlay controller), maybe a small View in `ads-core` (no Compose), tests.
 ### Log
+- 2026-11-23 merged 552ce46; QA rounds 1; owner-check:needed (overlay/Back on device)
 
 ## T9 — ads-ui-compose: Native
-- Status: ready
+- Status: in-progress
 - Type: feature · Size: m · Complex: yes · Priority: p1 · Depends on: T2, T3
 ### Goal
 `NativeAd(placement, adIndex, loading) { ad -> }` for Compose using Google's compose_utils (copied, Apache-2.0 kept). v3 4, 8; `docs/compose-utils-notes.md`.
@@ -219,6 +220,7 @@ The public entry point of v3 section 4: `Ads.install(application, AdsOptions(...
 - [ ] `Ads.setPremium/isPremium/setKillSwitch`, `Ads.interstitial`, `Ads.rewarded`, `Ads.appOpen` exposed as v3 section 4.
 - [ ] Early validation errors from T1 surface at install.
 - [ ] One integration test with all fakes: install -> consent -> init -> preload -> showThen.
+- [ ] Wire DefaultAppOpenOverlay as the default AppOpenOverlay; declare androidx.activity explicitly in ads-core/build.gradle.kts (from T8 QA)
 ### Out of scope
 LegacyConfigReader (dropped, owner 2026-11-23).
 ### Files likely touched
@@ -292,6 +294,7 @@ Expected: no loaded handle is ever lost; a throwing gateway ends that load as a 
 - [ ] (from T5 QA) `destroy()` is idempotent for every handle (flag in `SdkHandle` / fake), so a late SDK `onFailedToShow` after a throwing show cannot destroy a real ad twice; test with the fake.
 - [ ] (from T7 QA) Move the duplicated "take as a child, destroy an arrived-but-cancelled handle" code of T5/T6/T7 into ONE AdPool helper, with a deterministic test of the hand-over/cancel interleaving (QA mutation: removing that destroy is currently NOT caught by any test).
 - [ ] (from T7 QA) `AppOpenResumeController.tryShow`: an app overlay whose `show()` throws must not crash (catch, release gate, emit an event).
+- [ ] DefaultAppOpenOverlay AndroidSurface.add(): if a call after addView throws, the frame is removed (session calls surface.remove() on add failure); test asserts remove() called (from T8 QA)
 ### Out of scope
 Eager expiry timer (expiry stays lazy, bounded).
 ### Files likely touched
