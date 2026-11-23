@@ -31,10 +31,11 @@ Repo local, KHONG co remote, KHONG dung glab / GitLab issues.
 - Khong them tinh nang ngoai v3 ma khong hoi owner.
 
 ## Trang thai hien tai (cap nhat sau moi buoc)
-_Cap nhat 2026-11-23, main = ffb9f10, check.sh PASS._
+_Cap nhat 2026-11-23, main = 6c2df48 (merge consent-bootstrap), check.sh PASS._
 Xong: scaffold (Gradle 9.4.1, AGP 9.2.1, Kotlin 2.2.10, UMP 4.0.0), ConfigParser + PlacementConfig (+test bang),
-AdGateway/SdkAdGateway/MainSerialDispatcher/Clock, FakeAdGateway/FakeClock (ads-testing), sample thread probe (chua do), compose-utils-notes.
-Chua lam (thu tu de xuat): ConsentGate/Bootstrap -> Pool (theo so nguoi cho, process scope) -> FullScreenGate/Interstitial/Rewarded (watchdog, showThen luon chay) ->
+AdGateway/SdkAdGateway/MainSerialDispatcher/Clock, FakeAdGateway/FakeClock (ads-testing), sample thread probe (chua do), compose-utils-notes,
+ConsentGate/UmpConsentSource + AdsBootstrap/MobileAdsInitializer (+FakeConsentSource/FakeSdkInitializer, 13 test).
+Chua lam (thu tu de xuat): Pool (goi bootstrap.awaitReadyToLoad() truoc moi load) (theo so nguoi cho, process scope) -> FullScreenGate/Interstitial/Rewarded (watchdog, showThen luon chay) ->
 AppOpenResume -> ads-ui-compose (chep NativeComposeUtility.kt Next-Gen, giu Apache-2.0) -> Ads.install + noi ConfigWarningSink vao listener -> README -> huong dan migrate ColorVerse (+LegacyConfigReader).
 Treo / can lam:
 - DO THREAD THUC TE chua lam duoc: `adb devices` rong, co 4 AVD nhung thieu `Sdk/emulator/emulator.exe`. Can cam may that hoac cai emulator, cai `sample`, loc logcat tag `AdThreadProbe`, roi chot muc 6.7 cua v3.
