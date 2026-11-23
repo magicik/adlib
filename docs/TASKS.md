@@ -265,3 +265,21 @@ Code fixes (file each failure as a bug task via the orchestrator).
 ### Files likely touched
 `docs/sample-smoke.md` (new), `docs/sample-smoke/` (new), `README.md`.
 ### Log
+
+## T15 — AdPool hardening: total-timeout leak window, gateway exceptions
+- Status: ready
+- Type: bug · Size: s · Complex: no · Priority: p2 · Depends on: none
+### Goal
+Two small defects QA found in T3 (non-blocking there).
+Steps / Actual: (1) `AdPool.kt` ~174-179: a tier result is returned inside `withTimeoutOrNull(totalTimeoutMs)`; if the total timeout fires just after an attempt produced its `PoolEntry`, the block returns null and the loaded handle is never destroyed (leak). (2) If a gateway `load*` call throws a non-cancellation exception inside `launchLoad`, the exception reaches the SupervisorJob / uncaught handler.
+Expected: no loaded handle is ever lost; a throwing gateway ends that load as a failure with `AdsEvent.LoadFailed` and never crashes.
+### Acceptance criteria
+- [ ] A test that reproduces (1) deterministically (e.g. fake gateway delivering exactly at the total deadline) fails before the fix; after the fix the handle is pooled or destroyed + Dropped.
+- [ ] A test with a fake gateway that throws: waiters get NoAd within their timeout, `LoadFailed` emitted, counters/permits restored, no uncaught exception.
+- [ ] (optional, same PR) test for "waiter cancelled in the same instant an ad is handed over".
+### Out of scope
+Eager expiry timer (expiry stays lazy, bounded).
+### Files likely touched
+`ads-core/.../core/pool/AdPool.kt`, `ads-core/src/test/.../pool/AdPoolTest.kt`, maybe `ads-testing/.../FakeAdGateway.kt` (throw behavior).
+### Log
+- 2026-11-23 filed from QA nits on T3.
