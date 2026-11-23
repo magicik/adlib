@@ -19,7 +19,7 @@ Old library (read-only reference for "like the old lib" details): `D:\Workspace\
 ---
 
 ## T1 — Placement registry, config lookup, Premium, kill switch, events
-- Status: in-progress
+- Status: done
 - Type: feature · Size: m · Complex: no · Priority: p1 · Depends on: none
 ### Goal
 The process-level state every later component reads: registered placements, per-load config, Premium, kill switch, and the event stream (v3 sections 3, 4, 6.6; R5, R8, R19-R21, R48).
@@ -34,9 +34,10 @@ The process-level state every later component reads: registered placements, per-
 ### Files likely touched
 `ads-core/.../core/placement/` (new), `ads-core/.../core/state/` (new: Premium, KillSwitch, AdsState), `ads-core/.../core/events/` (new), `core/config/ConfigParser.kt` (sink), tests in `ads-core/src/test/.../`.
 ### Log
+- 2026-11-23 merged 683861c; QA rounds 1; owner-check:none
 
 ## T2 — Test mode (R22-R27)
-- Status: backlog
+- Status: ready
 - Type: feature · Size: m · Complex: no · Priority: p1 · Depends on: T1
 ### Goal
 Lib-side test mode, as in the old library (no SDK API says "this is a test device"). v3 6.5, v1 2.3, v2 A.9.
@@ -55,7 +56,7 @@ UI hiding itself (T9 uses the flag).
 ### Log
 
 ## T3 — AdPool (waiter-driven single-flight, tiers, expiry)
-- Status: backlog
+- Status: ready
 - Type: feature · Size: m · Complex: yes · Priority: p1 · Depends on: T1
 ### Goal
 The self-made pool for interstitial / rewarded / app open / native (no Preloader; banner is NOT pooled). v3 6.1, 6.3, Q-B; P1-P14, H1-H5.
@@ -76,7 +77,7 @@ Show logic, banner, UI.
 ### Log
 
 ## T4 — FullScreenGate + watchdog
-- Status: backlog
+- Status: ready
 - Type: feature · Size: m · Complex: yes · Priority: p1 · Depends on: T1
 ### Goal
 One gate for every full-screen ad (interstitial, rewarded, app open) so two never overlap and a lost dismiss never blocks ads forever. v3 6.2, 6.4, Q-A, Q-H.
@@ -180,7 +181,7 @@ ads-ui-view (later), native refresh beyond the test-mode flag.
 ### Log
 
 ## T10 — ads-ui-compose: Banner
-- Status: backlog
+- Status: ready
 - Type: feature · Size: s · Complex: no · Priority: p1 · Depends on: T1
 ### Goal
 `BannerAd(placement)` composable: direct load per View, no pool (v3 0, Q14), `AndroidView` + `SdkAdGateway.loadBanner`.
