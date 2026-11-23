@@ -160,7 +160,7 @@ Overlay drawing and Back handling (T8), Splash.
 - 2026-11-23 merged 0d8b2c2; QA rounds 1; owner-check:none (device check when T11 wires it: show after onResume, no WatchdogFired; any Clicked skips next return)
 
 ## T8 — App Open overlay + Back blocking
-- Status: ready
+- Status: in-progress
 - Type: feature · Size: s · Complex: no · Priority: p1 · Depends on: T7
 ### Goal
 Full-screen scrim + progress on the first return, Back swallowed while it shows (owner Q-F). v3 7 (M7, R2/R3).
