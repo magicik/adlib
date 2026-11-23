@@ -275,7 +275,7 @@ Code fixes (file each failure as a bug task via the orchestrator).
 `docs/sample-smoke.md` (new), `docs/sample-smoke/` (new), `README.md`.
 ### Log
 
-## T15 — AdPool hardening: total-timeout leak window, gateway exceptions
+## T15 — Hardening: pool total-timeout leak window, gateway exceptions, idempotent destroy
 - Status: ready
 - Type: bug · Size: s · Complex: no · Priority: p2 · Depends on: none
 ### Goal
@@ -286,6 +286,7 @@ Expected: no loaded handle is ever lost; a throwing gateway ends that load as a 
 - [ ] A test that reproduces (1) deterministically (e.g. fake gateway delivering exactly at the total deadline) fails before the fix; after the fix the handle is pooled or destroyed + Dropped.
 - [ ] A test with a fake gateway that throws: waiters get NoAd within their timeout, `LoadFailed` emitted, counters/permits restored, no uncaught exception.
 - [ ] (optional, same PR) test for "waiter cancelled in the same instant an ad is handed over".
+- [ ] (from T5 QA) `destroy()` is idempotent for every handle (flag in `SdkHandle` / fake), so a late SDK `onFailedToShow` after a throwing show cannot destroy a real ad twice; test with the fake.
 ### Out of scope
 Eager expiry timer (expiry stays lazy, bounded).
 ### Files likely touched
