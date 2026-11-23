@@ -19,7 +19,7 @@ Old library (read-only reference for "like the old lib" details): `D:\Workspace\
 ---
 
 ## T1 — Placement registry, config lookup, Premium, kill switch, events
-- Status: ready
+- Status: in-progress
 - Type: feature · Size: m · Complex: no · Priority: p1 · Depends on: none
 ### Goal
 The process-level state every later component reads: registered placements, per-load config, Premium, kill switch, and the event stream (v3 sections 3, 4, 6.6; R5, R8, R19-R21, R48).
