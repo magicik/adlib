@@ -9,6 +9,10 @@ import com.example.adlib.core.events.AdsEventBus
 import com.example.adlib.core.events.AdsEventListener
 import com.example.adlib.core.events.DropReason
 import com.example.adlib.core.gateway.AdFormat
+import com.example.adlib.core.gateway.AdGateway
+import com.example.adlib.core.gateway.AdLoadRequest
+import com.example.adlib.core.gateway.InterstitialHandle
+import com.example.adlib.core.gateway.LoadResult
 import com.example.adlib.core.gateway.MainSerialDispatcher
 import com.example.adlib.core.placement.Placement
 import com.example.adlib.core.state.AdsState
@@ -22,6 +26,7 @@ import com.example.adlib.testing.FakeBehavior.Load
 import com.example.adlib.testing.FakeBehavior.Never
 import com.example.adlib.testing.FakeRevenueStore
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
@@ -377,5 +382,60 @@ class AdPoolTest {
         assertEquals(2, e.dropped(DropReason.FLUSHED))
         assertNull(e.pool.take(a, 10_000))
         assertEquals(3, e.gateway.loadRequests.size)
+    }
+
+    @Test
+    fun `an ad delivered at the very instant total_timeout fires still reaches its waiter`() = runTest {
+        val e = env()
+        var callback: ((LoadResult<InterstitialHandle>) -> Unit)? = null
+        val gateway = object : AdGateway by e.gateway {
+            override fun loadInterstitial(request: AdLoadRequest, callback0: (LoadResult<InterstitialHandle>) -> Unit) {
+                callback = callback0
+            }
+        }
+        val pool = AdPool(gateway, e.state, e.testMode, { true }, e.bus, Clock { currentTime }, backgroundScope)
+        val handle = FakeAdHandle("n1", AdFormat.INTERSTITIAL, 0)
+        // Registered before the pool's total timeout, so at t=1000 it answers first; the timeout then fires
+        // (Guards the at-deadline hand-over; with one serial thread the old code also got it through the cancel path.)
+        // while the attempt's continuation is already queued (an inline callback, as a test can do).
+        launch {
+            delay(1_000)
+            callback!!(LoadResult.Loaded(handle))
+        }
+        val got = async { pool.take(placement(config = cfg("n1" to 10_000, total = 1_000)), 10_000) }
+        runCurrent()
+        advanceTimeBy(1_001)
+        assertSame(handle, got.await())
+        assertFalse(handle.destroyed)
+    }
+
+    @Test
+    fun `a throwing gateway ends the load as LoadFailed, waiters get NoAd in time, the permit comes back`() = runTest {
+        val e = env(PoolOptions(parallelLoadsPerFormat = 1))
+        val p = placement(config = cfg("n1" to 10_000, "n2" to 10_000))
+        e.gateway.loadThrows = IllegalStateException("sdk boom")
+        assertNull(e.pool.take(p, 10_000))
+        runCurrent()
+        assertEquals(0, currentTime)
+        assertEquals(listOf("n1", "n2"), e.units()) // next tier is still tried
+        assertEquals(2, e.events.count { it is AdsEvent.LoadFailed && it.code == AdPool.LOAD_THREW })
+
+        e.gateway.loadThrows = null
+        assertNotNull(e.pool.take(p, 10_000)) // the only permit was released, no uncaught exception (runTest fails on one)
+    }
+
+    @Test
+    fun `ad handed over in the same instant the caller is cancelled is destroyed, not lost`() = runTest {
+        val e = env()
+        e.gateway.script(AdFormat.INTERSTITIAL, Load(1_000))
+        lateinit var caller: Job
+        // Loaded is delivered right after the hand-over; cancelling one task later (after the Loaded event) hits the window between
+        // the pool completing take() and the caller reading its result.
+        e.bus.listener = AdsEventListener { if (it is AdsEvent.Loaded) e.serial.post { caller.cancel() } }
+        caller = launch { e.pool.takeOwned(placement(), 10_000) }
+        advanceTimeBy(1_001)
+        assertTrue(caller.isCancelled)
+        assertEquals(1, e.gateway.handles.size)
+        assertTrue(e.gateway.handles.single().destroyed)
     }
 }

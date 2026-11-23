@@ -23,7 +23,9 @@ internal class OverlaySession(private val surface: OverlaySurface) : AppOpenOver
             surface.setBackBlocked(true)
         } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
             // A broken overlay must never stop the ad flow: end up with nothing visible and Back free.
-            hide()
+            // add() may have attached a frame before it threw: remove it too.
+            visible = true
+            runCatching { hide() }
         }
         return this
     }
