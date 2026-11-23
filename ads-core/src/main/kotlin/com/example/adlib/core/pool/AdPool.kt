@@ -126,6 +126,14 @@ internal class AdPool(
         waiter.entry?.handle
     }
 
+    /** True when a non-expired ad is pooled for [placement]'s key; read-only (does not purge or take). */
+    suspend fun hasFreshAd(placement: Placement): Boolean = withContext(confined) {
+        requirePooled(placement)
+        val now = clock.nowMs()
+        val ttl = ttlMs(placement.format)
+        slots[PoolKey(placement.poolKey, placement.format)]?.entries?.any { now - it.loadedAt < ttl } ?: false
+    }
+
     private fun pump(format: AdFormat) {
         val keys = slots.values.filter { it.key.format == format }
         for (slot in keys) {
