@@ -10,3 +10,6 @@
 Design: `BookReader/docs/ads-lib-phase1-v3.txt` (sections 0, 1, 2, 10). Not copied here.
 Current code:
 - `core.config`: `PlacementConfig` (+ `AdTiers`, `HighFloorTier`, `AdUnitTier`, `RefreshConfig`, `PlacementDefault`) and internal `ConfigParser` (new schema, design section 3; warnings via `ConfigWarningSink`).
+- `core.consent`: `ConsentSource` (UMP isolation; load and show of the form are separate so the 10s timeout never covers the form on screen), `UmpConsentSource`, `ConsentGate` (process-level `canRequestAds` / `privacyOptionsRequired` / `formShowing` StateFlows, single-flight `gather`, late UMP answers still refresh).
+- `core.bootstrap`: `SdkInitializer` + `MobileAdsInitializer` (worker thread, app id from manifest), `AdsBootstrap` (init once on first `canRequestAds == true`, config wait 8s from T0, `awaitReadyToLoad()` = false at once without consent, 4s per waiter for init).
+- ads-testing: `FakeConsentSource`, `FakeSdkInitializer` (manually driven).
