@@ -3,7 +3,7 @@
 Thu vien quang cao moi (thay lib cu `D:\Workspace\Google_Dev\BTN\Project\AdsExample\ads`), dung
 `com.google.android.libraries.ads.mobile.sdk:ads-mobile-sdk:1.7.0`. App dau tien dung: BookReader
 (`D:\Workspace\Google_Dev\LLC_NGHIA\BookReader`, chi DOC, khong sua tu repo nay). ColorVerse migrate sau.
-Repo local, KHONG co remote, KHONG dung glab / GitLab issues.
+Remote: `origin` = git@github.com:magicik/adlib.git (GitHub, them 2026-11-23). KHONG dung glab / GitLab issues.
 
 ## Nguon su that (doc truoc khi lam)
 - `docs/ads-lib-phase1-v3.txt` — thiet ke da chot (v3 thang moi tai lieu cu). Muc 0 = quyet dinh owner, muc 11 = cau hoi (tat ca da tra loi).
