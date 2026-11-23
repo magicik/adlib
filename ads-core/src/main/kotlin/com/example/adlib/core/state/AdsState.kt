@@ -46,6 +46,10 @@ internal class AdsState(
     }
 
     /** The one gate used at load AND at show (v3 6.6). */
-    fun isAdAllowed(placement: Placement): Boolean =
-        !_isPremium.value && !killSwitch && canRequestAds() && config(placement).enable
+    fun isAdAllowed(placement: Placement): Boolean = canServe() && config(placement).enable
+
+    /** The same gate with the config the caller already read for this load (avoids a second parse). */
+    fun isAdAllowed(config: PlacementConfig): Boolean = canServe() && config.enable
+
+    private fun canServe(): Boolean = !_isPremium.value && !killSwitch && canRequestAds()
 }
