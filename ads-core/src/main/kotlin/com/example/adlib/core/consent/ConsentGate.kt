@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
+import java.lang.ref.WeakReference
 import java.util.concurrent.atomic.AtomicBoolean
 
 /** Result of one [ConsentGate.gather]. */
@@ -32,6 +33,8 @@ data class ConsentOutcome(
  * - A late update still refreshes the flags (UMP answering after the timeout can turn ads on).
  * - A gather that finished cleanly is not repeated in this process (recreate keeps the result, R18);
  *   one that failed or timed out runs again on the next call.
+ * - A form whose host Activity is destroyed without a dismiss callback ends with [HOST_DESTROYED]
+ *   ([onActivityDestroyed]), so [formShowing] cannot pause App Open forever and gather can run again.
  */
 class ConsentGate(
     private val source: ConsentSource,
@@ -49,6 +52,7 @@ class ConsentGate(
     val formShowing: StateFlow<Boolean> = _formShowing.asStateFlow()
 
     private var inFlight: Deferred<ConsentOutcome>? = null
+    private var form: FormOnScreen? = null
     private var completed: ConsentOutcome? = null
 
     fun gather(activity: Activity, onDone: (ConsentOutcome) -> Unit = {}) {
@@ -73,7 +77,7 @@ class ConsentGate(
 
     fun showPrivacyOptions(activity: Activity, onDone: (ConsentError?) -> Unit = {}) {
         scope.launch {
-            val error = showing { awaitOnce<ConsentError?> { source.showPrivacyOptionsForm(activity, it) } }
+            val error = showing(activity) { source.showPrivacyOptionsForm(activity, it) }
             refresh()
             onDone(error)
         }
@@ -94,18 +98,33 @@ class ConsentGate(
             is FormLoadResult.Failed -> return ConsentOutcome(refresh(), error = result.error)
             is FormLoadResult.Loaded -> result.form
         }
-        val showError = showing { awaitOnce<ConsentError?> { form.show(activity, it) } }
+        val showError = showing(activity) { form.show(activity, it) }
         val outcome = ConsentOutcome(refresh(), error = showError, formShown = true)
         return if (showError == null) finish(outcome) else outcome
     }
 
     private fun finish(outcome: ConsentOutcome): ConsentOutcome = outcome.also { completed = it }
 
-    private suspend fun <T> showing(block: suspend () -> Box<T>): T {
+    /**
+     * Call from the host's lifecycle (any thread) when an Activity is destroyed: a form shown on it that
+     * never reported dismissed ends now with [HOST_DESTROYED].
+     */
+    fun onActivityDestroyed(activity: Activity) {
+        scope.launch {
+            val shown = form ?: return@launch
+            if (shown.host.get() === activity || shown.host.get() == null) shown.result.complete(Box(HOST_DESTROYED))
+        }
+    }
+
+    /** One form on [host] until its dismiss callback or the host's destruction, whichever comes first. */
+    private suspend fun showing(host: Activity, show: ((ConsentError?) -> Unit) -> Unit): ConsentError? {
+        val shown = FormOnScreen(WeakReference(host), CompletableDeferred())
+        form = shown
         _formShowing.value = true
         return try {
-            block().value
+            awaitOnce(shown.result, show).value
         } finally {
+            form = null
             _formShowing.value = false
         }
     }
@@ -119,8 +138,10 @@ class ConsentGate(
      * Bridges a one-shot callback into [scope]. The callback is re-posted (thread unknown), a second
      * invocation is ignored, and an answer arriving after the waiter gave up still triggers [refresh].
      */
-    private suspend fun <T> awaitOnce(start: ((T) -> Unit) -> Unit): Box<T> {
-        val result = CompletableDeferred<Box<T>>()
+    private suspend fun <T> awaitOnce(
+        result: CompletableDeferred<Box<T>> = CompletableDeferred(),
+        start: ((T) -> Unit) -> Unit,
+    ): Box<T> {
         val fired = AtomicBoolean(false)
         start { value ->
             if (fired.compareAndSet(false, true)) {
@@ -136,7 +157,13 @@ class ConsentGate(
     /** Wraps nullable results so "answered with null" differs from "timed out" (withTimeoutOrNull). */
     private class Box<T>(val value: T)
 
+    private class FormOnScreen(val host: WeakReference<Activity>, val result: CompletableDeferred<Box<ConsentError?>>)
+
     companion object {
         const val DEFAULT_NETWORK_TIMEOUT_MS = 10_000L
+
+        /** Lib code (not UMP): the form's host Activity was destroyed before the form reported dismissed. */
+        const val HOST_DESTROYED_CODE = -1
+        val HOST_DESTROYED = ConsentError(HOST_DESTROYED_CODE, "form host destroyed before dismiss")
     }
 }

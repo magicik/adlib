@@ -84,6 +84,9 @@ class FakeAdGateway(
 
     val loadRequests = mutableListOf<Pair<AdFormat, String>>()
     val shown = mutableListOf<AdHandle>()
+
+    /** The Activity each entry of [shown] was shown on. */
+    val shownOn = mutableListOf<Activity>()
     val handles = mutableListOf<FakeAdHandle>()
 
     /** Behaviors are consumed one per load call; the last one repeats. Default: Load(0). */
@@ -144,25 +147,26 @@ class FakeAdGateway(
     override fun loadBanner(request: BannerLoadRequest, context: Context, callback: (LoadResult<BannerHandle>) -> Unit) =
         load(AdFormat.BANNER, request.adUnitId, callback)
 
-    private fun fullScreen(handle: AdHandle, listener: FullScreenAdListener) {
+    private fun fullScreen(handle: AdHandle, activity: Activity, listener: FullScreenAdListener) {
         showThrows?.let { throw it }
         showFailureCode?.let { code ->
             dispatcher.post { listener.onFailedToShow(code, "fake") }
             return
         }
         shown += handle
+        shownOn += activity
         fullScreenListeners[handle] = listener
         dispatcher.post { listener.onShowed() }
     }
 
     override fun showInterstitial(handle: InterstitialHandle, activity: Activity, listener: FullScreenAdListener) =
-        fullScreen(handle, listener)
+        fullScreen(handle, activity, listener)
 
     override fun showRewarded(handle: RewardedHandle, activity: Activity, listener: FullScreenAdListener) =
-        fullScreen(handle, listener)
+        fullScreen(handle, activity, listener)
 
     override fun showAppOpen(handle: AppOpenHandle, activity: Activity, listener: FullScreenAdListener) =
-        fullScreen(handle, listener)
+        fullScreen(handle, activity, listener)
 
     override fun setEventListener(handle: AdHandle, listener: AdEventListener) {
         eventListeners[handle] = listener

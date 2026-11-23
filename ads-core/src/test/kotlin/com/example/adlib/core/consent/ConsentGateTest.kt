@@ -181,4 +181,43 @@ class ConsentGateTest {
         assertFalse(gate.formShowing.value)
         assertFalse(gate.canRequestAds.value)
     }
+
+    @Test
+    fun `form whose host is destroyed without a dismiss stops formShowing and gather can run again`() = runTest {
+        val source = FakeConsentSource(formRequired = true, canRequestAds = true, privacyOptionsRequired = true)
+        val gate = gate(source)
+        val other = mockk<Activity>(relaxed = true)
+
+        // Consent form.
+        val result = async { gate.awaitGather(activity) }
+        runCurrent()
+        source.answerUpdate()
+        runCurrent()
+        source.answerFormLoad()
+        runCurrent()
+        gate.onActivityDestroyed(other)
+        runCurrent()
+        assertTrue("another Activity does not end it", gate.formShowing.value)
+
+        gate.onActivityDestroyed(activity)
+        runCurrent()
+        assertFalse(gate.formShowing.value)
+        assertEquals(ConsentOutcome(true, error = ConsentGate.HOST_DESTROYED, formShown = true), result.await())
+        source.dismissForm() // a late dismiss is harmless
+        runCurrent()
+        val again = async { gate.awaitGather(activity) }
+        runCurrent()
+        assertEquals("not finished cleanly: runs again", 2, source.updateCalls)
+        again.cancel()
+
+        // Privacy options form.
+        var done: ConsentError? = null
+        gate.showPrivacyOptions(activity) { done = it }
+        runCurrent()
+        assertTrue(gate.formShowing.value)
+        gate.onActivityDestroyed(activity)
+        runCurrent()
+        assertFalse(gate.formShowing.value)
+        assertEquals(ConsentGate.HOST_DESTROYED, done)
+    }
 }
