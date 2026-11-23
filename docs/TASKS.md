@@ -106,6 +106,8 @@ Format-specific show code (T5/T6/T7).
 - [ ] Recheck at show (v3 6.6) via T1 `isAdAllowed` + expiry.
 - [ ] Caps: dailyCap, oneInN, interval = T2 `effectiveInterstitialIntervalMs`, plus the T4 gap. Day boundary via `Clock`.
 - [ ] Retry after a failed preload follows the old lib (v1 R28-R31 says 5s/15s); read the old lib to confirm the exact rule, report any difference in NOTES_FOR_OWNER.
+- [ ] (from T4 QA) The gate reservation is released on EVERY branch, including owner cancelled and host destroyed (the gate has no Reserved timeout by design); test it. Premium already true at reserve time is rechecked (no callback fires for an old value).
+- [ ] Respect `FullScreenGate.isWithinGap()` before reserving.
 ### Out of scope
 Splash (not in GD2).
 ### Files likely touched
@@ -123,6 +125,8 @@ Splash (not in GD2).
 - [ ] `isAllowed` reflects premium/kill switch/canRequestAds/config live; `isAvailable` reflects a non-expired pooled ad.
 - [ ] `gone_in_test_mode` does NOT apply (Q-C).
 - [ ] Uses `SdkAdGateway.showRewarded` (SDK 1.7.0 single load/show signature).
+- [ ] (from T4 QA) The gate reservation is released on EVERY branch, including owner cancelled and host destroyed (the gate has no Reserved timeout by design); test it. Premium already true at reserve time is rechecked (no callback fires for an old value).
+- [ ] Rewarded ignores the gap (user-initiated, as the old lib) — pending owner confirmation, see T4 log.
 ### Out of scope
 Waiting-screen UI (app supplies it; lib exposes state).
 ### Files likely touched
@@ -142,6 +146,9 @@ The mandatory App Open on return to the app (R33), logic only (overlay view = T8
 - [ ] Skip the next resume after: a native/banner/inter click; consent/privacy form showing (`ConsentGate.formShowing`); `pauseForExternalFlow(maxMs = 60_000)` (expires by itself, one return only); Activity in `excludedActivities`.
 - [ ] Fix carried from ConsentGate: if a consent form never reports dismissed (host destroyed), `formShowing` must not pause App Open forever - clear it when the form's host Activity is destroyed (add the hook to ConsentGate) and test it.
 - [ ] Scenario tests (virtual time): first return no-fill, background mid-load, ad after timeout (cached for next), click then return, form open, pause never resumed, rotation keeps state.
+- [ ] (from T4 QA) The gate reservation is released on EVERY branch, including owner cancelled and host destroyed (the gate has no Reserved timeout by design); test it. Premium already true at reserve time is rechecked (no callback fires for an old value).
+- [ ] Respect `isWithinGap()`. Call `show()` so that no host `onResume` follows it (ProcessLifecycle ON_START runs before the host onResume: a show at ON_START lets the watchdog free the gate while the ad is still coming up). Test this ordering with FakeActivityTracker.
+- [ ] Reuse ONE `AppActivityTracker` per process (from T4) and extend that interface for top-Activity / excludedActivities.
 ### Out of scope
 Overlay drawing and Back handling (T8), Splash.
 ### Files likely touched
