@@ -177,7 +177,7 @@ Compose-specific overlay.
 - 2026-11-23 merged 552ce46; QA rounds 1; owner-check:needed (overlay/Back on device)
 
 ## T9 — ads-ui-compose: Native
-- Status: in-progress
+- Status: review
 - Type: feature · Size: m · Complex: yes · Priority: p1 · Depends on: T2, T3
 ### Goal
 `NativeAd(placement, adIndex, loading) { ad -> }` for Compose using Google's compose_utils (copied, Apache-2.0 kept). v3 4, 8; `docs/compose-utils-notes.md`.
@@ -193,9 +193,10 @@ ads-ui-view (later), native refresh beyond the test-mode flag.
 ### Files likely touched
 `ads-ui-compose/src/main/...` (new files), `ads-ui-compose/build.gradle.kts` (Compose deps - protected path, owner merges), tests.
 ### Log
+- 2026-11-23 QA APPROVED 70b989a round 1; waiting for owner merge: protected paths (ads-ui-compose/build.gradle.kts, gradle/libs.versions.toml); owner-check:needed
 
 ## T10 — ads-ui-compose: Banner
-- Status: ready
+- Status: in-progress
 - Type: feature · Size: s · Complex: no · Priority: p1 · Depends on: T1
 ### Goal
 `BannerAd(placement)` composable: direct load per View, no pool (v3 0, Q14), `AndroidView` + `SdkAdGateway.loadBanner`.
@@ -221,6 +222,7 @@ The public entry point of v3 section 4: `Ads.install(application, AdsOptions(...
 - [ ] Early validation errors from T1 surface at install.
 - [ ] One integration test with all fakes: install -> consent -> init -> preload -> showThen.
 - [ ] Wire DefaultAppOpenOverlay as the default AppOpenOverlay; declare androidx.activity explicitly in ads-core/build.gradle.kts (from T8 QA)
+- [ ] Create NativeController(pool, gateway, state, testMode, bus, serialScope) and provide it as LocalNativeAdSource (e.g. Ads.native) (from T9)
 ### Out of scope
 LegacyConfigReader (dropped, owner 2026-11-23).
 ### Files likely touched
