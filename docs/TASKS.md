@@ -13,6 +13,7 @@ Old library (read-only reference for "like the old lib" details): `D:\Workspace\
 - Only the tracker, the orchestrator and `scripts/merge-task.sh` edit this file, only on `main`. Dev never edits it on a branch.
 - `blocked` with a log line `owner:` = waiting for the owner; the tracker never promotes it.
 - Branch per task: `<type>/T<n>-<slug>`; commits end with `(T<n>)`.
+- Dropped by owner 2026-11-23: LegacyConfigReader + ColorVerse migration (the lib will be applied to another app by the owner; it is tested in `sample` here).
 - Already done before this board (2026-11-23): scaffold, ConfigParser + PlacementConfig, AdGateway/SdkAdGateway/MainSerialDispatcher/Clock, FakeAdGateway/FakeClock, ConsentGate/UmpConsentSource, AdsBootstrap/MobileAdsInitializer, FakeConsentSource/FakeSdkInitializer.
 
 ---
@@ -205,23 +206,31 @@ The public entry point of v3 section 4: `Ads.install(application, AdsOptions(...
 - [ ] Early validation errors from T1 surface at install.
 - [ ] One integration test with all fakes: install -> consent -> init -> preload -> showThen.
 ### Out of scope
-LegacyConfigReader (T14).
+LegacyConfigReader (dropped, owner 2026-11-23).
 ### Files likely touched
 `ads-core/.../core/Ads.kt`, `AdsOptions.kt` (new), tests.
 ### Log
 
-## T12 — Sample app wiring + README
+## T12 — Sample app: demo UI for every format
 - Status: backlog
-- Type: chore · Size: m · Complex: no · Priority: p1 · Depends on: T8, T9, T10, T11
+- Type: feature · Size: m · Complex: no · Priority: p1 · Depends on: T8, T9, T10, T11
 ### Goal
-`sample` uses the real API with Google test unit ids (v3 2) on every format; README documents install, consent, placements, config schema, test mode, publishing placeholder, ktlint/detekt not yet added.
+Draw the demo UI in `sample` (Compose + Material 3, already in its dependencies) so every format can be tried by hand in this repo, using the real public API and Google test unit ids (v3 2). This app is where the library is tested; other apps adopt it later (owner 2026-11-23).
 ### Acceptance criteria
-- [ ] Sample builds (`check.sh`), screens for native grid, banner, interstitial, rewarded, app-open resume.
-- [ ] README sections as above; links to v3 for design.
+- [ ] `Ads.install` in the sample `Application` with one placement per format (test unit ids), `debug = true`, test mode on; `Ads.consent.gather(activity)` in the first Activity.
+- [ ] Home screen: list of demo screens + toggles for Premium and kill switch + "Privacy options" button (shown only when `privacyOptionsRequired`).
+- [ ] Native screen: LazyVerticalGrid/LazyColumn with >= 12 native slots (to exercise the 8-slot cap and LRU) using the lib layouts (large + small).
+- [ ] Banner screen: anchored adaptive banner at the bottom.
+- [ ] Interstitial screen: button "Next" using `showThen { navigate }` — navigation happens in every outcome.
+- [ ] Rewarded screen: unlock button enabled by `isAllowed`, shows the earned reward / unavailable state.
+- [ ] App Open: switch to attach/detach resume, button `pauseForExternalFlow` + one "external flow" action (share sheet) to try the skip rules.
+- [ ] Event log panel (last ~50 `AdsEvent`s, incl. revenue) visible on every screen, plus logcat tag `AdLibSample`.
+- [ ] All user-facing strings in `res/values/strings.xml`; no new dependencies (if one is truly needed: version catalog + reason, owner merges).
+- [ ] `./scripts/check.sh` passes (it assembles `sample`). Visual criteria: manual note + screenshots in T14.
 ### Out of scope
-Publishing for real (groupId still PLACEHOLDER).
+Splash, ads-ui-view, publishing.
 ### Files likely touched
-`sample/`, `README.md`.
+`sample/src/main/kotlin/com/example/adlib/sample/` (new screens, `SampleApp.kt`), `sample/src/main/res/values/strings.xml`, `sample/src/main/AndroidManifest.xml` (Application class, APPLICATION_ID meta-data — protected path, owner merges).
 ### Log
 
 ## T13 — Measure real callback threads on a device
@@ -238,16 +247,19 @@ Code changes (unless a callback is proven to need different handling -> new task
 ### Log
 - 2026-11-23 owner: needs a real device or an installed emulator (`adb devices` empty, `Sdk/emulator/emulator.exe` missing).
 
-## T14 — LegacyConfigReader + ColorVerse migration guide
-- Status: blocked
-- Type: feature · Size: m · Complex: no · Priority: p2 · Depends on: T11
+## T14 — Self-test in the sample app + README
+- Status: backlog
+- Type: test · Size: s · Complex: no · Priority: p1 · Depends on: T12
 ### Goal
-Optional reader for the old schema (enabled in AdsOptions), tested against the old `PlacementConfig.fromJson`; migration guide incl. H1 (old ColorVerse reads only `list_ads`: dual JSON or RC condition by app version). `docs/ads-lib-config-schema.txt`.
+Build and test the library inside this repo's `sample` app, then document it. No other app is touched.
 ### Acceptance criteria
-- [ ] Mapping table tests from the schema doc; BookReader does not enable it.
+- [ ] `./gradlew :sample:assembleDebug` succeeds (also covered by check.sh).
+- [ ] If `adb devices` shows a device/emulator: `./gradlew :sample:installDebug`, launch it (`adb shell am start -n com.example.adlib.sample/.MainActivity`), go through each demo screen, capture one screenshot per screen (`adb exec-out screencap -p > docs/sample-smoke/<screen>.png`) and the `AdLibSample` + `AdThreadProbe` logcat lines.
+- [ ] `docs/sample-smoke.md`: checklist per format (loaded / shown / dismissed / gone on premium / showThen action ran / reward earned / app-open on return), result pass/fail/not-run with the evidence line or screenshot.
+- [ ] No device: build part done, every device row `not-run — no device`, report `DEV: CHECK PASS` for the build and put "device smoke test needed" in NOTES_FOR_OWNER (T13 has the same device requirement — do both in one device session).
+- [ ] `README.md`: install, consent, placements + config schema, test mode, sample app, how to run the smoke test; publishing groupId still PLACEHOLDER; ktlint/detekt not added yet.
 ### Out of scope
-Changing ColorVerse.
+Code fixes (file each failure as a bug task via the orchestrator).
 ### Files likely touched
-`ads-core/.../core/config/LegacyConfigReader.kt` (new), `docs/migrate-colorverse.md` (new).
+`docs/sample-smoke.md` (new), `docs/sample-smoke/` (new), `README.md`.
 ### Log
-- 2026-11-23 owner: do this only when ColorVerse migration starts.

@@ -2,12 +2,12 @@
 
 Thu vien quang cao moi (thay lib cu `D:\Workspace\Google_Dev\BTN\Project\AdsExample\ads`), dung
 `com.google.android.libraries.ads.mobile.sdk:ads-mobile-sdk:1.7.0`. App dau tien dung: BookReader
-(`D:\Workspace\Google_Dev\LLC_NGHIA\BookReader`, chi DOC, khong sua tu repo nay). ColorVerse migrate sau.
+(`D:\Workspace\Google_Dev\LLC_NGHIA\BookReader`, chi DOC, khong sua tu repo nay). Owner tu ap dung lib cho app khac; lib duoc test trong app `sample` cua repo nay.
 Remote: `origin` = git@github.com:magicik/adlib.git (GitHub, them 2026-11-23). KHONG dung glab / GitLab issues.
 
 ## Nguon su that (doc truoc khi lam)
 - `docs/ads-lib-phase1-v3.txt` — thiet ke da chot (v3 thang moi tai lieu cu). Muc 0 = quyet dinh owner, muc 11 = cau hoi (tat ca da tra loi).
-- `docs/ads-lib-config-schema.txt` — schema cu/moi + mapping (cho LegacyConfigReader khi migrate ColorVerse).
+- `docs/ads-lib-config-schema.txt` — schema cu/moi + mapping (chi tham khao; LegacyConfigReader da BO).
 - `docs/compose-utils-notes.md` — ghi chu doc ma nguon compose_utils Next-Gen cho native Compose.
 - `docs/ARCHITECTURE.md` — ban do module.
 - `docs/TASKS.md` — backlog/bang viec cho agent (T1..). `docs/agents/dev-workflow.md` — quy trinh Dev.
@@ -19,7 +19,7 @@ Remote: `origin` = git@github.com:magicik/adlib.git (GitHub, them 2026-11-23). K
 - Config cho song song voi consent. Banner load truc tiep, khong pool. Tran 8 o native/man.
 - App Open khi QUAY LAI app (R33) BAT BUOC: lop phu + progress o lan dau, show ngay khi ad ve, CHAN Back trong luc lop phu (co tran overlayMaxMs), minBackgroundMs mac dinh 0, pauseForExternalFlow tu het han (60s) va chi 1 lan quay lai.
 - KHONG lam Splash o GD2. KHONG lam ads-ui-view yet (ads-ui-compose truoc).
-- Parser loi CHI doc schema MOI; schema cu = LegacyConfigReader tuy chon, lam khi migrate ColorVerse (luu y: app ColorVerse cu chi doc `list_ads`, ghi JSON kep hoac RC condition theo version).
+- Parser loi CHI doc schema MOI. [owner 2026-11-23] BO LegacyConfigReader va migrate ColorVerse (thang v3 muc 0/10).
 - Mac dinh config: truong thieu lay tu default placement; JSON loi/rong = default; khong default = tat; `tiers.normal[].enable` thieu = TRUE (owner 2026-11-23).
 - Q-A..Q-H: App Open khong tinh vao dailyCap/oneInN; total_timeout khong tinh high floor; gone_in_test_mode khong ap rewarded; lop phu chi lan dau moi process; app goi Ads.consent.gather(activity); watchdog 2 phut.
 
@@ -96,7 +96,7 @@ Xong: scaffold (Gradle 9.4.1, AGP 9.2.1, Kotlin 2.2.10, UMP 4.0.0), ConfigParser
 AdGateway/SdkAdGateway/MainSerialDispatcher/Clock, FakeAdGateway/FakeClock (ads-testing), sample thread probe (chua do), compose-utils-notes,
 ConsentGate/UmpConsentSource + AdsBootstrap/MobileAdsInitializer (+FakeConsentSource/FakeSdkInitializer, 13 test).
 Backlog chi tiet: `docs/TASKS.md` (T1..T14). Tom tat: Pool (goi bootstrap.awaitReadyToLoad() truoc moi load) (theo so nguoi cho, process scope) -> FullScreenGate/Interstitial/Rewarded (watchdog, showThen luon chay) ->
-AppOpenResume -> ads-ui-compose (chep NativeComposeUtility.kt Next-Gen, giu Apache-2.0) -> Ads.install + noi ConfigWarningSink vao listener -> README -> huong dan migrate ColorVerse (+LegacyConfigReader).
+AppOpenResume -> ads-ui-compose (chep NativeComposeUtility.kt Next-Gen, giu Apache-2.0) -> Ads.install + noi ConfigWarningSink vao listener -> UI demo trong `sample` (T12) -> tu test trong sample + README (T14).
 Treo / can lam:
 - DO THREAD THUC TE chua lam duoc: `adb devices` rong, co 4 AVD nhung thieu `Sdk/emulator/emulator.exe`. Can cam may that hoac cai emulator, cai `sample`, loc logcat tag `AdThreadProbe`, roi chot muc 6.7 cua v3.
 - `core.time.Clock` do agent gateway tao; thong nhat khi viet Pool/Consent (dung chung, dung tao Clock thu hai).
