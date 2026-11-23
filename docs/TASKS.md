@@ -117,7 +117,7 @@ Splash (not in GD2).
 - 2026-11-23 merged 06fefd4; QA rounds 3 (dev x2 -> dev-senior); owner-check:needed (device: rotate during ad, back/background during ad; awaitLiveHost unbounded by design; old lib had no retry rule, v1 5s/15s used)
 
 ## T6 — Rewarded
-- Status: in-progress
+- Status: done
 - Type: feature · Size: m · Complex: no · Priority: p1 · Depends on: T3, T4
 ### Goal
 `Ads.rewarded.isAvailable/isAllowed(placement): Flow<Boolean>` and `request(activity, placement, onEarned, onClosed, onUnavailable)`. v3 4, 6.2; R32 (waiting screen, timeout 10s, 3 separate callbacks).
@@ -134,9 +134,10 @@ Waiting-screen UI (app supplies it; lib exposes state).
 ### Files likely touched
 `ads-core/.../core/fullscreen/rewarded/` (new), tests.
 ### Log
+- 2026-11-23 merged 5a0df1b; QA rounds 2; owner-check:needed (device: onEarned before onClosed; reward after watchdog release needs owner decision; isAllowed/isAvailable poll 1s; rewarded preload has no retry)
 
 ## T7 — App Open on resume: rules and state machine
-- Status: ready
+- Status: in-progress
 - Type: feature · Size: m · Complex: yes · Priority: p1 · Depends on: T3, T4
 ### Goal
 The mandatory App Open on return to the app (R33), logic only (overlay view = T8). v3 7, Q-D, Q-E, Q-H.
