@@ -287,7 +287,7 @@ Code fixes (file each failure as a bug task via the orchestrator).
 ### Log
 
 ## T15 — Hardening: pool total-timeout leak window, gateway exceptions, idempotent destroy
-- Status: in-progress
+- Status: done
 - Type: bug · Size: m · Complex: no · Priority: p2 · Depends on: none
 ### Goal
 Two small defects QA found in T3 (non-blocking there).
@@ -307,3 +307,4 @@ Eager expiry timer (expiry stays lazy, bounded).
 `ads-core/.../core/pool/AdPool.kt`, `core/fullscreen/interstitial|rewarded/*Controller.kt`, `core/appopen/AppOpenResumeController.kt`, tests, maybe `ads-testing/.../FakeAdGateway.kt` (throw behavior).
 ### Log
 - 2026-11-23 filed from QA nits on T3.
+- 2026-11-23 merged 4395efa; QA rounds 1; owner-check:needed (SdkHandle destroy idempotency, overlay frame removal on device); item (1) defensive fix only, no failing repro possible on serial dispatcher.
