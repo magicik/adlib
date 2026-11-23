@@ -35,6 +35,7 @@ dependencies {
     testImplementation(libs.turbine)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.org.json)
+    testImplementation(project(":ads-testing"))
 }
 
 // TODO(publish): groupId must become com.github.<jitpack-user> (see README). Not published for real yet.
