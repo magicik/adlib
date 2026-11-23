@@ -196,7 +196,7 @@ ads-ui-view (later), native refresh beyond the test-mode flag.
 - 2026-11-23 QA APPROVED 70b989a round 1; waiting for owner merge: protected paths (ads-ui-compose/build.gradle.kts, gradle/libs.versions.toml); owner-check:needed
 
 ## T10 — ads-ui-compose: Banner
-- Status: in-progress
+- Status: review
 - Type: feature · Size: s · Complex: no · Priority: p1 · Depends on: T1
 ### Goal
 `BannerAd(placement)` composable: direct load per View, no pool (v3 0, Q14), `AndroidView` + `SdkAdGateway.loadBanner`.
@@ -209,9 +209,10 @@ Collapsible banners, refresh rules beyond SDK defaults.
 ### Files likely touched
 `ads-ui-compose/src/main/...`, tests for the state logic only.
 ### Log
+- 2026-11-23 QA APPROVED f2eb6b7 round 1; stacked on T9 branch; waiting for owner merge after T9 (protected paths come from T9); owner-check:needed
 
 ## T11 — Ads.install facade + AdsOptions
-- Status: ready
+- Status: in-progress
 - Type: feature · Size: m · Complex: no · Priority: p1 · Depends on: T1, T2, T3, T4, T5, T6, T7
 ### Goal
 The public entry point of v3 section 4: `Ads.install(application, AdsOptions(...))`, main process only (L6), wiring ConsentGate, AdsBootstrap, pool, gates, events.
@@ -223,6 +224,7 @@ The public entry point of v3 section 4: `Ads.install(application, AdsOptions(...
 - [ ] One integration test with all fakes: install -> consent -> init -> preload -> showThen.
 - [ ] Wire DefaultAppOpenOverlay as the default AppOpenOverlay; declare androidx.activity explicitly in ads-core/build.gradle.kts (from T8 QA)
 - [ ] Create NativeController(pool, gateway, state, testMode, bus, serialScope) and provide it as LocalNativeAdSource (e.g. Ads.native) (from T9)
+- [ ] Provide BannerAdSource: BannerController(gateway, state, testMode, bus, bootstrap::awaitReadyToLoad, scope) as LocalBannerAdSource (from T10)
 ### Out of scope
 LegacyConfigReader (dropped, owner 2026-11-23).
 ### Files likely touched
