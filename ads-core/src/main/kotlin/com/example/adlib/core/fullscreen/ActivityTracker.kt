@@ -15,6 +15,9 @@ interface ActivityTracker {
      * Only increases; a reader compares against a value it saw earlier.
      */
     val appResumes: StateFlow<Long>
+
+    /** How many non-ad Activities of the app are STARTED right now (0 = app in background or between hosts). */
+    val startedAppActivities: StateFlow<Int>
 }
 
 /** Ad Activities of the SDK (checked in the 1.7.0 AAR manifest: `...sdk.common.AdActivity`). */
@@ -26,6 +29,8 @@ internal fun isAdActivity(className: String): Boolean = AD_ACTIVITY_PREFIXES.any
 internal class AppActivityTracker(application: Application) : ActivityTracker {
     private val resumes = MutableStateFlow(0L)
     override val appResumes: StateFlow<Long> = resumes.asStateFlow()
+    private val started = MutableStateFlow(0)
+    override val startedAppActivities: StateFlow<Int> = started.asStateFlow()
 
     init {
         application.registerActivityLifecycleCallbacks(
@@ -36,11 +41,15 @@ internal class AppActivityTracker(application: Application) : ActivityTracker {
 
                 override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) = Unit
 
-                override fun onActivityStarted(activity: Activity) = Unit
+                override fun onActivityStarted(activity: Activity) {
+                    if (!isAdActivity(activity.javaClass.name)) started.update { it + 1 }
+                }
 
                 override fun onActivityPaused(activity: Activity) = Unit
 
-                override fun onActivityStopped(activity: Activity) = Unit
+                override fun onActivityStopped(activity: Activity) {
+                    if (!isAdActivity(activity.javaClass.name)) started.update { maxOf(0, it - 1) }
+                }
 
                 override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) = Unit
 
