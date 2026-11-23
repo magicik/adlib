@@ -57,7 +57,7 @@ UI hiding itself (T9 uses the flag).
 - 2026-11-23 merged 6ec8cd5; QA rounds 1; owner-check:needed (test device ids on device; shouldHideNative after a zero-value paid event; dropped "Ad Test" variant)
 
 ## T3 — AdPool (waiter-driven single-flight, tiers, expiry)
-- Status: ready
+- Status: in-progress
 - Type: feature · Size: m · Complex: yes · Priority: p1 · Depends on: T1
 ### Goal
 The self-made pool for interstitial / rewarded / app open / native (no Preloader; banner is NOT pooled). v3 6.1, 6.3, Q-B; P1-P14, H1-H5.
