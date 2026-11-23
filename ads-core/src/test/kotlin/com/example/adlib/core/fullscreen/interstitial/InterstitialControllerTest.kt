@@ -271,4 +271,56 @@ class InterstitialControllerTest {
         advanceTimeBy(600_000); runCurrent()
         assertEquals(2, e.interRequests())
     }
+
+    @Test
+    fun `owner cancelled during a load that later succeeds - the arrived ad is destroyed, not leaked`() = runTest {
+        val e = env()
+        e.gateway.script(AdFormat.INTERSTITIAL, Load(delayMs = 1_000))
+        val n = AtomicInteger()
+        val job = e.controller.showThen(e.activity, placement) { n.incrementAndGet() }
+        advanceTimeBy(500)
+        job.cancel()
+        advanceTimeBy(1_000); runCurrent()
+
+        assertEquals(1, n.get())
+        assertEquals(GateState.Idle, e.gate.state.value)
+        assertTrue(e.gateway.shown.isEmpty())
+        // Either destroyed or still held by the pool (then a later take can use it) - never orphaned.
+        val handle = e.gateway.handles.single()
+        val pooled = e.pool.take(placement, 1)
+        assertTrue(handle.destroyed || pooled === handle)
+    }
+
+    @Test
+    fun `owner cancelled while the ad is on screen - the action waits for the ad to end`() = runTest {
+        val e = env()
+        e.controller.preload(placement); runCurrent()
+        val n = AtomicInteger()
+        val job = e.controller.showThen(e.activity, placement) { n.incrementAndGet() }
+        runCurrent()
+        assertTrue(e.gate.state.value is GateState.Showing)
+
+        job.cancel(); runCurrent()
+        assertEquals(0, n.get())
+        assertTrue(e.gate.state.value is GateState.Showing)
+
+        e.gateway.dismiss(e.gateway.handles[0]); runCurrent()
+        assertEquals(1, n.get())
+        assertEquals(GateState.Idle, e.gate.state.value)
+    }
+
+    @Test
+    fun `a gate-busy attempt does not use up a oneInN attempt`() = runTest {
+        val e = env(InterstitialOptions(minIntervalMs = 0, oneInN = 2))
+        e.controller.preload(placement); runCurrent()
+        val other = GateOwner("other")
+        e.gate.reserve(other)
+        e.show(placement); runCurrent()
+        e.gate.release(other)
+
+        e.show(placement); runCurrent() // 1st counted attempt: skipped
+        assertEquals(0, e.gateway.shown.size)
+        e.show(placement); runCurrent() // 2nd: shown
+        assertEquals(1, e.gateway.shown.size)
+    }
 }

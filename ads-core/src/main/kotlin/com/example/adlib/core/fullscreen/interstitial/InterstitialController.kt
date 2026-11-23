@@ -18,12 +18,14 @@ import com.example.adlib.core.pool.AdPool
 import com.example.adlib.core.state.AdsState
 import com.example.adlib.core.testmode.TestMode
 import com.example.adlib.core.time.Clock
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -60,7 +62,7 @@ internal class InterstitialController(
     private val preloadFailures = HashMap<String, Int>()
 
     init {
-        pool.addPreloadFailedListener(::onPreloadFailed)
+        pool.addPreloadResultListener(::onPreloadResult)
     }
 
     /** Background fill of one interstitial; a failed load is retried after 5s then 15s, then waits for the next call. */
@@ -76,11 +78,14 @@ internal class InterstitialController(
     fun showThen(activity: Activity, placement: Placement, action: () -> Unit): Job {
         requireInterstitial(placement)
         val host = WeakReference(activity)
+        val flow = ShowFlow()
         return scope.launch {
             try {
-                tryShow(host, placement)
+                tryShow(host, placement, flow)
             } finally {
                 withContext(NonCancellable) {
+                    // Cancelled while the ad is on screen: the action still waits for the ad to end (dismiss, error, watchdog).
+                    flow.showingEnd?.await()
                     awaitLiveHost(host)
                     action()
                 }
@@ -88,8 +93,12 @@ internal class InterstitialController(
         }
     }
 
-    private fun onPreloadFailed(placement: Placement) {
+    private fun onPreloadResult(placement: Placement, loaded: Boolean) {
         if (placement.format != AdFormat.INTERSTITIAL) return
+        if (loaded) {
+            preloadFailures.remove(placement.name)
+            return
+        }
         val failures = preloadFailures[placement.name] ?: 0
         val wait = options.retryDelaysMs.getOrNull(failures) ?: return
         preloadFailures[placement.name] = failures + 1
@@ -99,12 +108,15 @@ internal class InterstitialController(
         }
     }
 
+    private class ShowFlow {
+        var showingEnd: CompletableDeferred<Unit>? = null
+    }
+
     /** Returns when the ad was closed or no ad was shown; the caller then runs the action. */
-    private suspend fun tryShow(host: WeakReference<Activity>, placement: Placement) {
+    private suspend fun tryShow(host: WeakReference<Activity>, placement: Placement, flow: ShowFlow) {
         if (!isAlive(host.get())) return
         if (!isAllowed(placement)) return
         if (gate.isWithinGap()) return
-        if (caps.tryConsume() != CapDecision.ALLOWED) return
 
         var taking: Job? = null
         val ended = CompletableDeferred<Unit>()
@@ -115,11 +127,21 @@ internal class InterstitialController(
         if (!gate.reserve(owner)) return
         var showing = false
         try {
-            val take = scope.async { pool.take(placement, options.waitForAdMs) }
-            taking = take
-            take.join()
-            val handle = if (take.isCancelled) null else take.getCompleted()
-            if (handle == null) return
+            // Counted only once the gate is ours: a gate-busy attempt must not use up a oneInN attempt.
+            if (caps.tryConsume() != CapDecision.ALLOWED) return
+            val handle = coroutineScope {
+                val take = async { pool.take(placement, options.waitForAdMs) }
+                taking = take
+                try {
+                    take.join()
+                } catch (e: CancellationException) {
+                    // Owner cancelled: nobody will read a handle that already arrived.
+                    take.cancel()
+                    if (take.isCompleted && !take.isCancelled) take.getCompleted()?.let { gateway.destroy(it) }
+                    throw e
+                }
+                if (take.isCancelled) null else take.getCompleted()
+            } ?: return
             preloadFailures.remove(placement.name)
 
             val activity = host.get()
@@ -134,6 +156,7 @@ internal class InterstitialController(
                 return
             }
             showing = true
+            flow.showingEnd = ended
             try {
                 gateway.showInterstitial(handle, activity!!, listener(owner, placement, handle, ended))
             } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {

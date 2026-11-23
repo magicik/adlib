@@ -5,8 +5,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-/** Manually driven [ActivityTracker]. */
-/** [initialStartedHosts] = 1: one app Activity is STARTED unless a test says otherwise. */
+/** Manually driven [ActivityTracker]. [initialStartedHosts] = 1: one app Activity is STARTED unless a test says otherwise. */
 class FakeActivityTracker(initialStartedHosts: Int = 1) : ActivityTracker {
     private val resumes = MutableStateFlow(0L)
     override val appResumes: StateFlow<Long> = resumes.asStateFlow()
