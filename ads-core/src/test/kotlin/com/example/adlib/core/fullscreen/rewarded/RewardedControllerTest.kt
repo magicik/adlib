@@ -72,7 +72,7 @@ class RewardedControllerTest {
 
     @Test
     fun `exactly one of onUnavailable or (onEarned then onClosed) and the gate is Idle in every branch`() = runTest {
-        class Case(val name: String, val expected: List<String>, val shownAds: Int = 0, val body: TestScope.(Env) -> Unit)
+        class Case(val name: String, val expected: List<String>, val shownAds: Int = 0, val body: suspend TestScope.(Env) -> Unit)
 
         val unavailable = listOf("unavailable")
         val cases = listOf(
@@ -101,6 +101,10 @@ class RewardedControllerTest {
                 job.cancel(); runCurrent()
                 assertEquals(GateState.Idle, e.gate.state.value)
                 assertEquals(listOf("unavailable"), e.calls)
+                advanceTimeBy(5_000); runCurrent()
+                // The late ad must not be lost: destroyed, or back in the pool (never taken and dropped).
+                val late = e.gateway.handles.single()
+                assertTrue(late.destroyed || e.pool.hasFreshAd(placement))
             },
             Case("show error callback", unavailable) { e ->
                 e.controller.preload(placement); runCurrent()
@@ -145,8 +149,8 @@ class RewardedControllerTest {
             assertEquals(case.name, GateState.Idle, e.gate.state.value)
             assertEquals(case.name, case.shownAds, e.gateway.shown.size)
             e.gateway.handles.filter { it !in e.gateway.shown }.let { unshown ->
-                // A handle that arrived but was not shown is destroyed or pooled, never leaked to the gate.
-                assertTrue(case.name, unshown.all { it.destroyed || case.name.startsWith("cancel during") })
+                // A handle that arrived but was not shown is destroyed or still pooled.
+                assertTrue(case.name, unshown.all { it.destroyed || e.pool.hasFreshAd(placement) })
             }
         }
     }

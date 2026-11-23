@@ -170,6 +170,7 @@ internal class RewardedController(
             }
 
             override fun onFailedToShow(code: String, message: String) {
+                // After onShowed, `displayed` is already true, so end() reports onClosed, not onUnavailable.
                 gate.release(owner)
                 gateway.destroy(handle)
                 request.end()
