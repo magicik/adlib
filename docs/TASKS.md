@@ -79,7 +79,7 @@ Show logic, banner, UI.
 - 2026-11-23 merged 3c4c99d; QA rounds 1; owner-check:none; nits filed as T15
 
 ## T4 — FullScreenGate + watchdog
-- Status: in-progress
+- Status: done
 - Type: feature · Size: m · Complex: yes · Priority: p1 · Depends on: T1
 ### Goal
 One gate for every full-screen ad (interstitial, rewarded, app open) so two never overlap and a lost dismiss never blocks ads forever. v3 6.2, 6.4, Q-A, Q-H.
@@ -94,9 +94,10 @@ Format-specific show code (T5/T6/T7).
 ### Files likely touched
 `ads-core/.../core/fullscreen/` (new), `ads-testing/.../FakeActivityTracker.kt` (new), tests.
 ### Log
+- 2026-11-23 merged 79b271f; QA rounds 1; owner-check:needed (device: real AdActivity resume vs watchdog; confirm rewarded ignores the gap)
 
 ## T5 — Interstitial: preload + showThen + caps
-- Status: backlog
+- Status: in-progress
 - Type: feature · Size: m · Complex: no · Priority: p1 · Depends on: T2, T3, T4
 ### Goal
 `Ads.interstitial.preload(placement)` and `showThen(activity, placement) { action() }` where the action ALWAYS runs. v3 4, 6.2, 6.4, 6.6; R28-R31.
@@ -115,7 +116,7 @@ Splash (not in GD2).
 ### Log
 
 ## T6 — Rewarded
-- Status: backlog
+- Status: ready
 - Type: feature · Size: m · Complex: no · Priority: p1 · Depends on: T3, T4
 ### Goal
 `Ads.rewarded.isAvailable/isAllowed(placement): Flow<Boolean>` and `request(activity, placement, onEarned, onClosed, onUnavailable)`. v3 4, 6.2; R32 (waiting screen, timeout 10s, 3 separate callbacks).
@@ -134,7 +135,7 @@ Waiting-screen UI (app supplies it; lib exposes state).
 ### Log
 
 ## T7 — App Open on resume: rules and state machine
-- Status: backlog
+- Status: ready
 - Type: feature · Size: m · Complex: yes · Priority: p1 · Depends on: T3, T4
 ### Goal
 The mandatory App Open on return to the app (R33), logic only (overlay view = T8). v3 7, Q-D, Q-E, Q-H.
