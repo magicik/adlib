@@ -37,7 +37,7 @@ The process-level state every later component reads: registered placements, per-
 - 2026-11-23 merged 683861c; QA rounds 1; owner-check:none
 
 ## T2 — Test mode (R22-R27)
-- Status: ready
+- Status: in-progress
 - Type: feature · Size: m · Complex: no · Priority: p1 · Depends on: T1
 ### Goal
 Lib-side test mode, as in the old library (no SDK API says "this is a test device"). v3 6.5, v1 2.3, v2 A.9.
