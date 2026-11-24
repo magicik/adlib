@@ -117,6 +117,20 @@ class TestModeTest {
     }
 
     @Test
+    fun `R27b bypassed only for test ad headline`() {
+        val m = mode()
+        val cases = listOf(
+            "Test Ad: Google" to false,
+            "test ad" to false,
+            "Real headline" to true,
+            null to true,
+        )
+        for ((headline, expectedHidden) in cases) {
+            assertEquals("headline=$headline", expectedHidden, m.shouldHideNative(placement, headline))
+        }
+    }
+
+    @Test
     fun `gone_in_test_mode applies to native interstitial app open but not rewarded`() {
         val gone = PlacementConfig(goneInTestMode = true)
         val notGone = PlacementConfig(goneInTestMode = false)

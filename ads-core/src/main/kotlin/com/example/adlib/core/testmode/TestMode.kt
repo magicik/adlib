@@ -42,8 +42,9 @@ internal class TestMode(
      * R27b: while no revenue has ever been recorded (new device) a loaded native stays hidden until its
      * first paid impression. Emits an event each time it hides, so QA sees the spent request was intended.
      */
-    fun shouldHideNative(placement: Placement): Boolean {
-        val hide = !snapshot.hasPaidEvent && snapshot.totalMicrosByCurrency.values.none { it > 0L }
+    fun shouldHideNative(placement: Placement, headline: String? = null): Boolean {
+        if (isTestHeadline(headline)) return false // owner 2026-11-24: a test ad never reports revenue
+        val hide = !snapshot.hasPaidEvent &&snapshot.totalMicrosByCurrency.values.none { it > 0L }
         if (hide) events.emit(AdsEvent.HiddenOnPurpose(placement.name, HIDDEN_R27B_MESSAGE))
         return hide
     }
