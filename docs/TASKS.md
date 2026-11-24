@@ -316,3 +316,24 @@ Eager expiry timer (expiry stays lazy, bounded).
 ### Log
 - 2026-11-23 filed from QA nits on T3.
 - 2026-11-23 merged 4395efa; QA rounds 1; owner-check:needed (SdkHandle destroy idempotency, overlay frame removal on device); item (1) defensive fix only, no failing repro possible on serial dispatcher.
+
+## T16 — Native never renders with test ads (R27b gate)
+- Status: ready
+- Type: bug · Size: s · Complex: no · Priority: p2 · Depends on: none
+### Goal
+Device smoke on Pixel 6a (docs/sample-smoke.md, merged 62af001) shows a loaded native is hidden by R27b (hide until first paid impression with revenue > 0). Test ads report `Paid 0.0 USD`, so the gate never opens; the log alternates Loaded / HiddenOnPurpose(R27b). The sample cannot exercise the native grid or the 8-slot cap.
+Steps to reproduce: fresh install, open the Native screen.
+Expected: native grid renders in sample with test ads.
+Actual: native hidden on purpose (R27b) every time; no revenue ever accumulates from test ads.
+Evidence: docs/sample-smoke.md (Pixel 6a run); log alternates Loaded / HiddenOnPurpose(R27b).
+OWNER DECISION NEEDED before coding: (a) exempt test ads / debug mode from R27b, or (b) sample-only bypass.
+### Acceptance criteria
+- [ ] Owner picks (a) or (b) and it is logged here before Dev starts.
+- [ ] Native grid renders in sample (manual check noted for owner, device).
+- [ ] A unit test covers the chosen rule (table-driven if several inputs).
+### Out of scope
+Changing R27b for real (non-test) ads; revenue store changes.
+### Files likely touched
+`ads-core/.../core/testmode/` (R27b gate), `sample/` (if option b), tests.
+### Log
+- 2026-11-24 filed from device smoke (Pixel 6a); owner decision needed (a) or (b).
