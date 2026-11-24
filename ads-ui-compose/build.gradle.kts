@@ -29,8 +29,12 @@ dependencies {
     api(project(":ads-core"))
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)
+    implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
 
     testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(project(":ads-testing"))
 }
 
 // TODO(publish): groupId must become com.github.<jitpack-user> (see README). Not published for real yet.

@@ -178,7 +178,11 @@ class FakeAdGateway(
     override fun showAppOpen(handle: AppOpenHandle, activity: Activity, listener: FullScreenAdListener) =
         fullScreen(handle, activity, listener)
 
+    /** When set, [setEventListener] throws this (a misbehaving SDK call). */
+    var setEventListenerThrows: RuntimeException? = null
+
     override fun setEventListener(handle: AdHandle, listener: AdEventListener) {
+        setEventListenerThrows?.let { throw it }
         eventListeners[handle] = listener
     }
 
@@ -186,6 +190,11 @@ class FakeAdGateway(
     fun emitPaid(handle: AdHandle, paid: AdPaid) {
         val listener = fullScreenListeners[handle] ?: eventListeners[handle] ?: return
         dispatcher.post { listener.onPaid(paid) }
+    }
+
+    fun click(handle: AdHandle) {
+        val listener = fullScreenListeners[handle] ?: eventListeners[handle] ?: return
+        dispatcher.post { listener.onClicked() }
     }
 
     fun dismiss(handle: AdHandle) {

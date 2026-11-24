@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Native ad attribution label (AdMob policy: clearly mark the ad). Translate per locale. -->
+    <string name="adlib_native_ad_attribution">Ad</string>
+</resources>

@@ -1,0 +1,12 @@
+AdLib
+This product includes third-party software licensed under the Apache License, Version 2.0.
+
+-------------------------------------------------------------------------------
+ads-ui-compose/src/main/kotlin/com/example/adlib/ui/compose/nativead/NativeComposeUtility.kt
+  Copied and modified from "gma-next-gen-sdk-android-examples" by Google LLC:
+  https://github.com/googleads/gma-next-gen-sdk-android-examples
+  kotlin/NextGenExample/app/src/main/java/com/example/nextgenexample/native/NativeComposeUtility.kt
+  at commit dc398eead450763712798cd588a5aecbe9e4c3a2.
+  Copyright 2026 Google LLC. Licensed under the Apache License, Version 2.0;
+  full text in licenses/APACHE-2.0.txt (http://www.apache.org/licenses/LICENSE-2.0).
+  Changes are listed in the header of that file.
