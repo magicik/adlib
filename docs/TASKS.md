@@ -258,6 +258,7 @@ Splash, ads-ui-view, publishing.
 ### Log
 - 2026-11-24 QA APPROVED 755d90a round 1; waiting for owner merge: protected path (sample/src/main/AndroidManifest.xml); owner-check:needed
 - 2026-11-24 merged 755d90a as b6ea320; QA rounds 1; owner-check:needed
+- 2026-11-24 owner decision: App Open stays attach-only (no detach API); pauseForExternalFlow already covers system settings / billing flows.
 
 ## T13 — Measure real callback threads on a device
 - Status: done
@@ -338,3 +339,21 @@ Changing R27b for real (non-test) ads; revenue store changes; any `debug`-flag-b
 - 2026-11-24 filed from device smoke (Pixel 6a); owner decision needed (a) or (b).
 - 2026-11-24 owner decision: bypass R27b only for test ads (any build type, not debug-flag based); real ads unchanged. Status in-progress.
 - 2026-11-24 merged b3357cc as d64419f; QA rounds 1; owner-check:needed (native grid on device).
+
+## T17 — UMP debug settings (test geography + test device)
+- Status: ready
+- Type: feature · Size: s · Complex: no · Priority: p2 · Depends on: none
+### Goal
+Owner approved (2026-11-24) UMP `ConsentDebugSettings` support so the consent form can be tested on a non-EEA device. Default = none, so production behaviour is unchanged.
+### Acceptance criteria
+- [ ] `AdsOptions` gets an optional consent debug config: debug geography enum (none / EEA / NOT_EEA) + test device hashed ids; default = none (default options build no debug settings).
+- [ ] `UmpConsentSource` passes it to `ConsentRequestParameters.Builder().setConsentDebugSettings(...)` (or an injectable seam); JVM test proves options reach the params builder / seam (no real UMP).
+- [ ] Sample wires EEA geography + the Pixel 6a hashed id (read from logcat) or a toggle on Home.
+- [ ] README documents the debug settings.
+- [ ] Manual device check: sample on Pixel 6a shows the UMP form with EEA geography (owner).
+### Out of scope
+Any change to production defaults; App Open detach API (owner: stays attach-only).
+### Files likely touched
+`ads-core/.../consent/` (UmpConsentSource, AdsOptions), `sample/` (Home toggle or Application wiring), `README.md`, tests in `ads-core/src/test/`. Protected paths may be touched; owner merges if build files change.
+### Log
+- 2026-11-24 filed (owner approved UMP debug settings).
