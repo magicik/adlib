@@ -274,7 +274,7 @@ Code changes (unless a callback is proven to need different handling -> new task
 - 2026-11-23 owner: needs a real device or an installed emulator (`adb devices` empty, `Sdk/emulator/emulator.exe` missing).
 
 ## T14 — Self-test in the sample app + README
-- Status: in-progress
+- Status: done
 - Type: test · Size: s · Complex: no · Priority: p1 · Depends on: T12
 ### Goal
 Build and test the library inside this repo's `sample` app, then document it. No other app is touched.
@@ -290,6 +290,7 @@ Code fixes (file each failure as a bug task via the orchestrator).
 ### Files likely touched
 `docs/sample-smoke.md` (new), `docs/sample-smoke/` (new), `README.md`.
 ### Log
+- 2026-11-24 merged a4d64c0 as 0c6dc42; Rounds: 0 (no QA); owner-check:needed (device smoke with T13)
 
 ## T15 — Hardening: pool total-timeout leak window, gateway exceptions, idempotent destroy
 - Status: done
