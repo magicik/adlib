@@ -341,7 +341,7 @@ Changing R27b for real (non-test) ads; revenue store changes; any `debug`-flag-b
 - 2026-11-24 merged b3357cc as d64419f; QA rounds 1; owner-check:needed (native grid on device).
 
 ## T17 — UMP debug settings (test geography + test device)
-- Status: ready
+- Status: in-progress
 - Type: feature · Size: s · Complex: no · Priority: p2 · Depends on: none
 ### Goal
 Owner approved (2026-11-24) UMP `ConsentDebugSettings` support so the consent form can be tested on a non-EEA device. Default = none, so production behaviour is unchanged.
@@ -357,3 +357,4 @@ Any change to production defaults; App Open detach API (owner: stays attach-only
 `ads-core/.../consent/` (UmpConsentSource, AdsOptions), `sample/` (Home toggle or Application wiring), `README.md`, tests in `ads-core/src/test/`. Protected paths may be touched; owner merges if build files change.
 ### Log
 - 2026-11-24 filed (owner approved UMP debug settings).
+- 2026-11-24 in-progress (tracker).
