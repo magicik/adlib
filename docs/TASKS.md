@@ -274,7 +274,7 @@ Code changes (unless a callback is proven to need different handling -> new task
 - 2026-11-23 owner: needs a real device or an installed emulator (`adb devices` empty, `Sdk/emulator/emulator.exe` missing).
 
 ## T14 — Self-test in the sample app + README
-- Status: ready
+- Status: in-progress
 - Type: test · Size: s · Complex: no · Priority: p1 · Depends on: T12
 ### Goal
 Build and test the library inside this repo's `sample` app, then document it. No other app is touched.
