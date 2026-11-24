@@ -1,0 +1,9 @@
+--------- beginning of main
+11-24 20:28:47.221 11953 11953 I AdLibSample: rewarded_unlock: Shown(placement=rewarded_unlock)
+11-24 20:28:47.224 11953 11953 I AdLibSample: rewarded_unlock: Paid 0.0 USD
+11-24 20:29:04.653 11953 11953 I AdLibSample: rewarded_unlock: Dismissed(placement=rewarded_unlock)
+11-24 20:29:44.553 11953 11953 I AdLibSample: app_open_resume: Loaded(placement=app_open_resume, adUnit=ca-app-pub-3940256099942544/9257395921)
+11-24 20:29:44.628 11953 11953 I AdLibSample: app_open_resume: Shown(placement=app_open_resume)
+11-24 20:29:44.661 11953 11953 I AdLibSample: app_open_resume: Paid 0.0 USD
+11-24 20:29:46.251 11953 11953 I AdLibSample: app_open_resume: Loaded(placement=app_open_resume, adUnit=ca-app-pub-3940256099942544/9257395921)
+11-24 20:29:57.598 11953 11953 I AdLibSample: app_open_resume: Dismissed(placement=app_open_resume)
