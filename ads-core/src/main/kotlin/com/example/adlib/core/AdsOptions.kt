@@ -3,6 +3,7 @@ package com.example.adlib.core
 import com.example.adlib.core.appopen.AppOpenOverlay
 import com.example.adlib.core.appopen.AppOpenResumeOptions
 import com.example.adlib.core.bootstrap.AdsBootstrap
+import com.example.adlib.core.consent.ConsentDebugConfig
 import com.example.adlib.core.events.AdsEventListener
 import com.example.adlib.core.fullscreen.interstitial.CapStore
 import com.example.adlib.core.placement.Placement
@@ -38,6 +39,8 @@ class AdsOptions(
     /** Drawn while the first return waits for its ad; null = `DefaultAppOpenOverlay`. */
     val appOpenOverlay: AppOpenOverlay? = null,
     val testDeviceIds: List<String> = emptyList(),
+    /** UMP debug geography / test devices; default none. */
+    val consentDebug: ConsentDebugConfig = ConsentDebugConfig(),
     val debug: Boolean = false,
     /** The Premium flag the app stored; read at install so no ad is requested before it is known. */
     val initialPremium: Boolean = false,
