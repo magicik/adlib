@@ -32,6 +32,8 @@ Ads.appOpen.attachResume()   // required for App Open on return to the app
 Set `com.google.android.gms.ads.APPLICATION_ID` meta-data in the manifest.
 
 - Consent: the app calls `Ads.consent.gather(activity)` (UMP). The SDK is initialised only once ads can be requested.
+- Consent debug: `AdsOptions.consentDebug = ConsentDebugConfig(ConsentDebugGeography.EEA, listOf("<hashed id>"))` shows the
+  UMP form outside the EEA. The hashed id is printed in logcat by UMP on the first request. Default = none; remove for release.
 - Placements: `Placement(name, AdFormat, default = PlacementConfig(...))`. Remote JSON (new schema only, see
   `docs/ads-lib-phase1-v3.txt` section 3) is supplied through `AdsOptions.configProvider`; missing fields come from
   the placement default, bad/empty JSON = default, no default = off, `tiers.normal[].enable` missing = true.

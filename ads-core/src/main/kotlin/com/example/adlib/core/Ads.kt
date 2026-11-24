@@ -87,7 +87,7 @@ object Ads {
             val scope = CoroutineScope(SupervisorJob() + serial)
             val created = AdsRuntime(
                 options, validated, scope, serial,
-                UmpConsentSource(application),
+                UmpConsentSource(application, options.consentDebug),
                 MobileAdsInitializer(application, testDeviceIds = options.testDeviceIds),
                 SdkAdGateway(serial, Clock.System),
                 tracker, tracker, Clock.System,

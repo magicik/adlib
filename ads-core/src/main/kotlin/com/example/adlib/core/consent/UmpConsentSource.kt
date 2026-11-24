@@ -3,6 +3,7 @@ package com.example.adlib.core.consent
 import android.app.Activity
 import android.content.Context
 import com.google.android.ump.ConsentInformation
+import com.google.android.ump.ConsentDebugSettings
 import com.google.android.ump.ConsentRequestParameters
 import com.google.android.ump.FormError
 import com.google.android.ump.UserMessagingPlatform
@@ -13,10 +14,21 @@ import com.google.android.ump.UserMessagingPlatform
  */
 class UmpConsentSource(
     context: Context,
-    private val parameters: () -> ConsentRequestParameters = { ConsentRequestParameters.Builder().build() },
+    private val debug: ConsentDebugConfig = ConsentDebugConfig(),
+    private val parameters: (() -> ConsentRequestParameters)? = null,
 ) : ConsentSource {
     private val appContext = context.applicationContext
     private val info: ConsentInformation = UserMessagingPlatform.getConsentInformation(appContext)
+
+    private fun defaultParameters(): ConsentRequestParameters {
+        val builder = ConsentRequestParameters.Builder()
+        if (debug.isActive) {
+            val settings = ConsentDebugSettings.Builder(appContext).setDebugGeography(debug.geography.umpValue())
+            debug.testDeviceHashedIds.forEach { settings.addTestDeviceHashedId(it) }
+            builder.setConsentDebugSettings(settings.build())
+        }
+        return builder.build()
+    }
 
     override fun canRequestAds(): Boolean = info.canRequestAds()
 
@@ -29,7 +41,7 @@ class UmpConsentSource(
     override fun requestInfoUpdate(activity: Activity, onDone: (ConsentError?) -> Unit) {
         info.requestConsentInfoUpdate(
             activity,
-            parameters(),
+            parameters?.invoke() ?: defaultParameters(),
             { onDone(null) },
             { error -> onDone(error.toConsentError()) },
         )
@@ -57,3 +69,10 @@ class UmpConsentSource(
 }
 
 private fun FormError.toConsentError() = ConsentError(errorCode, message)
+
+/** The `ConsentDebugSettings.DebugGeography` constant for this geography. */
+internal fun ConsentDebugGeography.umpValue(): Int = when (this) {
+    ConsentDebugGeography.DISABLED -> ConsentDebugSettings.DebugGeography.DEBUG_GEOGRAPHY_DISABLED
+    ConsentDebugGeography.EEA -> ConsentDebugSettings.DebugGeography.DEBUG_GEOGRAPHY_EEA
+    ConsentDebugGeography.NOT_EEA -> ConsentDebugSettings.DebugGeography.DEBUG_GEOGRAPHY_NOT_EEA
+}
