@@ -236,7 +236,7 @@ LegacyConfigReader (dropped, owner 2026-11-23).
 - 2026-11-24 merged 91b0aad as fa27d4e; QA rounds 1; owner-check:needed
 
 ## T12 — Sample app: demo UI for every format
-- Status: in-progress
+- Status: review
 - Type: feature · Size: m · Complex: no · Priority: p1 · Depends on: T8, T9, T10, T11
 ### Goal
 Draw the demo UI in `sample` (Compose + Material 3, already in its dependencies) so every format can be tried by hand in this repo, using the real public API and Google test unit ids (v3 2). This app is where the library is tested; other apps adopt it later (owner 2026-11-23).
@@ -256,6 +256,7 @@ Splash, ads-ui-view, publishing.
 ### Files likely touched
 `sample/src/main/kotlin/com/example/adlib/sample/` (new screens, `SampleApp.kt`), `sample/src/main/res/values/strings.xml`, `sample/src/main/AndroidManifest.xml` (Application class, APPLICATION_ID meta-data — protected path, owner merges).
 ### Log
+- 2026-11-24 QA APPROVED 755d90a round 1; waiting for owner merge: protected path (sample/src/main/AndroidManifest.xml); owner-check:needed
 
 ## T13 — Measure real callback threads on a device
 - Status: blocked
