@@ -11,12 +11,13 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
+import com.example.adlib.core.Ads
 import com.example.adlib.core.banner.BannerAdSource
 import com.example.adlib.core.placement.Placement
 
-/** The lib's banner source. `Ads.install` provides it (T11); tests and previews may provide a fake. */
+/** The lib's banner source. Defaults to `Ads.banner` (needs `Ads.install`); tests and previews may provide a fake. */
 val LocalBannerAdSource = staticCompositionLocalOf<BannerAdSource> {
-    error("No BannerAdSource: call Ads.install or provide LocalBannerAdSource")
+    Ads.banner
 }
 
 /**

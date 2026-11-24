@@ -28,7 +28,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
 
-internal data class AppOpenResumeOptions(
+data class AppOpenResumeOptions(
     /** A return counts only after this long in the background (Q-D: 0 like the old lib). */
     val minBackgroundMs: Long = 0L,
     /** The first return's ad must arrive within this to be shown (old AppOpenResumeHelper: 5s); later it stays cached. */
