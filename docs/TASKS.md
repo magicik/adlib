@@ -260,7 +260,7 @@ Splash, ads-ui-view, publishing.
 - 2026-11-24 merged 755d90a as b6ea320; QA rounds 1; owner-check:needed
 
 ## T13 — Measure real callback threads on a device
-- Status: in-progress
+- Status: done
 - Type: chore · Size: s · Complex: no · Priority: p1 · Depends on: none
 ### Goal
 Install `sample`, filter logcat tag `AdThreadProbe`, record the thread of load/show/onAdPaid/init callbacks, then finalize v3 6.7.
@@ -273,6 +273,7 @@ Code changes (unless a callback is proven to need different handling -> new task
 ### Log
 - 2026-11-23 owner: needs a real device or an installed emulator (`adb devices` empty, `Sdk/emulator/emulator.exe` missing).
 - 2026-11-24 device connected: Pixel 6a
+- 2026-11-24 merged 6670a0f as e06a58d; Rounds: 0 (no QA); measured on Pixel 6a; owner-check:none
 
 ## T14 — Self-test in the sample app + README
 - Status: done
