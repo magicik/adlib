@@ -140,6 +140,7 @@ Recreate (R18): giu co da consent/da init; state o process-level singleton.
 - Truoc show: enable placement, kill switch, premium, canRequestAds, het han (4h/55p). Premium bat -> flush pool, huy lop phu/man cho dang mo.
 6.7 Thread (M12)
 - Mot dispatcher main tuan tu duy nhat cho moi callback; khong "chay ngay neu dang o main". Pool/Gate giam tren do. Do thread thuc te o app mau de xac nhan.
+- [DO THUC TE 2026-11-24, Pixel 6a, SDK 1.7.0] Moi callback (init, load, show, paid, impression, click, dismiss, reward) den tren thread nen "GMA(BG) n", KHONG BAO GIO main -> luon re-post vao MainSerialDispatcher. Bang: docs/ARCHITECTURE.md.
 
 =====================================================================
 7. APP OPEN KHI QUAY LAI (R33) - BAT BUOC (sua H6, H7, H8, M7)

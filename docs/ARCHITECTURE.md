@@ -26,3 +26,16 @@ Current code:
 - ads-ui-compose `ui.compose.nativead`: `NativeComposeUtility.kt` (Google Next-Gen compose_utils, Apache-2.0, modified: see its header, `/NOTICE`, `licenses/`), `NativeAd(placement, adIndex, loading) { ad -> }` (content inside the SDK NativeAdView), `NativeAdLarge`/`NativeAdSmall` (+ `*Content`, `*Placeholder` of the same fixed size), `LocalNativeAdSource`. Internal `NativeSlotHolder` in a ViewModel of the current ViewModelStoreOwner (NavBackStackEntry): slots keyed (placement, adIndex), Idle | Loading | Shown | Gone, load on first visible, Gone sticky, cap max(8, visible + 1) checked when a slot starts loading, LRU of last visible released (destroy -> Idle), `onCleared`/Premium destroy all; stale answers released.
 - `core.banner`: `BannerAdSource` (public, for UI modules; `Ads.install` provides it, T11) and internal `BannerController`: direct load per request (no pool): `awaitReadyToLoad` -> fresh config -> normal tiers each within its timeout, all within `total_timeout_ms`; late/unused ads destroyed; paid/click/impression to TestMode + event bus (click feeds App Open skip). ads-ui-compose `ui.compose.banner`: `BannerAd(placement)` (width-aware anchored adaptive, draws nothing until loaded) + internal `BannerSlot` (Loading | Shown | Gone, destroy on dispose/Premium), `LocalBannerAdSource`.
 - `core` root (T11): `Ads` (public object: `install` idempotent, main process only, sync; `consent` = `ConsentGate`, `setPremium/isPremium/setKillSwitch`, `interstitial`/`rewarded`/`appOpen` thin public wrappers, `native`/`banner` sources; `LocalNativeAdSource`/`LocalBannerAdSource` default to them), `AdsOptions` (+ `FullScreenOptions`; `PoolOptions` and `AppOpenResumeOptions` are public), internal `AdsRuntime` = the whole wired graph from injected parts (tested with fakes in `AdsRuntimeTest`); `AdsRuntime.validate` runs first in install (debug throws on bad placements, release reports them as `ConfigWarning` events). App Open uses the first `APP_OPEN` placement; default overlay `DefaultAppOpenOverlay`. ads-core declares `androidx.activity` explicitly.
+
+## SDK callback threads (measured T13)
+Pixel 6a, Android 17, GMA Next-Gen 1.7.0, sample "Thread probe (raw SDK)", 2026-11-24.
+
+| Callback | Thread | main? |
+|----------|--------|-------|
+| `MobileAds.initialize` (call itself, @WorkerThread) | caller thread (IO worker) | no |
+| init completion listener | `GMA(BG) n` | no |
+| load callbacks: interstitial, rewarded, app open, native, banner | `GMA(BG) n` | no |
+| onAdShowed / onAdImpression / onAdClicked / onAdPaid (inter, app open, banner) | `GMA(BG) n` | no |
+| rewarded onUserEarnedReward / onAdDismissed, app open onAdDismissed | `GMA(BG) n` | no |
+
+Conclusion: no SDK callback arrives on main; every callback must be re-posted to `MainSerialDispatcher` (v3 6.7 confirmed). Thread number varies per call. Not captured: inter onAdDismissed, native onAdPaid, onAdFailedToShow (same pattern expected).
