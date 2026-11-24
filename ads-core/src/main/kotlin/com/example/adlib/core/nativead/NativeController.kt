@@ -62,7 +62,7 @@ internal class NativeController(
     /** The show-time recheck (v3 6.6) and R27b; the listener is set only on an ad that will be shown. */
     private fun usable(placement: Placement, handle: AdHandle?): NativeHandle? {
         if (handle !is NativeHandle) return null
-        if (!state.isAdAllowed(placement) || testMode.shouldHideNative(placement)) return null
+        if (!state.isAdAllowed(placement) || testMode.shouldHideNative(placement, handle.headline))return null
         gateway.setEventListener(handle, listener(placement))
         return handle
     }
