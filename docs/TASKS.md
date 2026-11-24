@@ -177,7 +177,7 @@ Compose-specific overlay.
 - 2026-11-23 merged 552ce46; QA rounds 1; owner-check:needed (overlay/Back on device)
 
 ## T9 — ads-ui-compose: Native
-- Status: review
+- Status: done
 - Type: feature · Size: m · Complex: yes · Priority: p1 · Depends on: T2, T3
 ### Goal
 `NativeAd(placement, adIndex, loading) { ad -> }` for Compose using Google's compose_utils (copied, Apache-2.0 kept). v3 4, 8; `docs/compose-utils-notes.md`.
@@ -194,9 +194,10 @@ ads-ui-view (later), native refresh beyond the test-mode flag.
 `ads-ui-compose/src/main/...` (new files), `ads-ui-compose/build.gradle.kts` (Compose deps - protected path, owner merges), tests.
 ### Log
 - 2026-11-23 QA APPROVED 70b989a round 1; waiting for owner merge: protected paths (ads-ui-compose/build.gradle.kts, gradle/libs.versions.toml); owner-check:needed
+- 2026-11-24 merged 70b989a as 097eb8b; QA rounds 1; owner-check:needed
 
 ## T10 — ads-ui-compose: Banner
-- Status: review
+- Status: done
 - Type: feature · Size: s · Complex: no · Priority: p1 · Depends on: T1
 ### Goal
 `BannerAd(placement)` composable: direct load per View, no pool (v3 0, Q14), `AndroidView` + `SdkAdGateway.loadBanner`.
@@ -210,9 +211,10 @@ Collapsible banners, refresh rules beyond SDK defaults.
 `ads-ui-compose/src/main/...`, tests for the state logic only.
 ### Log
 - 2026-11-23 QA APPROVED f2eb6b7 round 1; stacked on T9 branch; waiting for owner merge after T9 (protected paths come from T9); owner-check:needed
+- 2026-11-24 merged f2eb6b7 as e68c2e9; QA rounds 1; owner-check:needed
 
 ## T11 — Ads.install facade + AdsOptions
-- Status: review
+- Status: done
 - Type: feature · Size: m · Complex: no · Priority: p1 · Depends on: T1, T2, T3, T4, T5, T6, T7
 ### Goal
 The public entry point of v3 section 4: `Ads.install(application, AdsOptions(...))`, main process only (L6), wiring ConsentGate, AdsBootstrap, pool, gates, events.
@@ -231,9 +233,10 @@ LegacyConfigReader (dropped, owner 2026-11-23).
 `ads-core/.../core/Ads.kt`, `AdsOptions.kt` (new), tests.
 ### Log
 - 2026-11-23 QA APPROVED 91b0aad round 1; stacked on T10 (on T9); waiting for owner merge after T9, T10 (protected: ads-core/build.gradle.kts, ads-ui-compose/build.gradle.kts, gradle/libs.versions.toml); owner-check:needed
+- 2026-11-24 merged 91b0aad as fa27d4e; QA rounds 1; owner-check:needed
 
 ## T12 — Sample app: demo UI for every format
-- Status: backlog
+- Status: ready
 - Type: feature · Size: m · Complex: no · Priority: p1 · Depends on: T8, T9, T10, T11
 ### Goal
 Draw the demo UI in `sample` (Compose + Material 3, already in its dependencies) so every format can be tried by hand in this repo, using the real public API and Google test unit ids (v3 2). This app is where the library is tested; other apps adopt it later (owner 2026-11-23).
