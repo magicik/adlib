@@ -529,7 +529,7 @@ Changing ConfigParser semantics or default-merging rules.
 - 2026-11-25 merged fba30ea as e9c1425; QA rounds 1; owner-check:none
 
 ## T27 — Add detekt with baseline
-- Status: review
+- Status: done
 - Type: chore · Size: m · Complex: no · Priority: p2 · Depends on: T24
 ### Goal
 Owner approved detekt (2026-11-25). Static analysis in `./scripts/check.sh`, with a baseline so existing findings do not block; only NEW findings fail the check.
@@ -548,6 +548,7 @@ Fixing baseline findings; any logic change; Compose-specific rule sets unless tr
 - 2026-11-25 filed (owner approved detekt).
 - 2026-11-25 in-progress (tracker)
 - 2026-11-25 waiting for owner merge: protected paths (build.gradle.kts, gradle/libs.versions.toml); branch chore/T27-detekt @870c2ca; DEV CHECK PASS (125 tests); detekt-cli 1.23.8 via root JavaExec; baseline 19 entries (4 SwallowedException worth a follow-up); run OWNER=1 ./scripts/merge-task.sh chore/T27-detekt 870c2caab2c0dacca899de0d22c4e7f373b63e9d (merge T28 first; README may conflict slightly)
+- 2026-11-25 merged 870c2ca as fe5f9d0 (OWNER=1); no QA (chore); detekt-cli 1.23.8, baseline 19 entries; follow-up candidate: 4 SwallowedException entries
 
 ## T28 — Set publishing groupId to com.magicik.adlib
 - Status: done
