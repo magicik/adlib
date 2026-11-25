@@ -472,7 +472,7 @@ Changing default values; App Open overlayMaxMs.
 - 2026-11-25 merged 08c02e8 as c1b512f; QA rounds 1; owner-check:none
 
 ## T24 — Add ktlint to check.sh
-- Status: ready
+- Status: in-progress
 - Type: chore · Size: m · Complex: no · Priority: p2 · Depends on: none
 ### Goal
 Owner approved ktlint (2026-11-25). Add ktlint (Gradle plugin, version in the version catalog) so `./scripts/check.sh` fails on style violations. detekt is NOT part of this task.
@@ -488,6 +488,7 @@ detekt; any logic change; renames.
 `build.gradle.kts` files, `gradle/libs.versions.toml`, `.editorconfig`, `scripts/check.sh`, README, many `*.kt` (format-only). Protected paths (build files, gradle/, scripts/) => owner merges with `OWNER=1`.
 ### Log
 - 2026-11-25 filed (owner approved ktlint).
+- 2026-11-25 in-progress (tracker)
 
 ## T25 — Comment cleanups (sample hashed id, AdsRuntime attach)
 - Status: done
