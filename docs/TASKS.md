@@ -548,7 +548,7 @@ Fixing baseline findings; any logic change; Compose-specific rule sets unless tr
 - 2026-11-25 filed (owner approved detekt).
 
 ## T28 — Set publishing groupId to com.magicik.adlib
-- Status: ready
+- Status: in-progress
 - Type: chore · Size: s · Complex: no · Priority: p2 · Depends on: none
 ### Goal
 Owner decided (2026-11-25): groupId = `com.magicik.adlib`. Replace `com.github.PLACEHOLDER` in the three publication blocks and remove the placeholder TODOs.
@@ -564,3 +564,4 @@ Renaming package `com.example.adlib` (still tentative; separate decision); publi
 `ads-*/build.gradle.kts` (protected: owner merges with `OWNER=1`), `README.md`.
 ### Log
 - 2026-11-25 filed (owner decided groupId com.magicik.adlib).
+- 2026-11-25 in-progress (tracker)
