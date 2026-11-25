@@ -29,7 +29,7 @@ import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
 
 internal data class RewardedOptions(
-    /** How long `request` waits for an ad that is not pooled yet (R32). */
+    /** How long `request` waits for an ad that is not pooled yet (R32); clamped to the placement's `total_timeout_ms`. */
     val waitForAdMs: Long = 10_000L,
     /** Sampling period of the live `isAvailable` / `isAllowed` flows (kill switch, config, expiry have no change signal). */
     val pollMs: Long = 1_000L,
@@ -111,7 +111,7 @@ internal class RewardedController(
             if (!isAlive(host.get())) return
             if (!state.isAdAllowed(placement)) return
             if (!gate.reserve(owner)) return
-            val handle = pool.takeOwned(placement, options.waitForAdMs) { taking = it } ?: return
+            val handle = pool.takeOwned(placement, minOf(options.waitForAdMs, state.config(placement).totalTimeoutMs)) { taking = it } ?: return
 
             val activity = host.get()
             val expired = clock.nowMs() - handle.loadedAt >= AdPool.ttlMs(AdFormat.REWARDED)

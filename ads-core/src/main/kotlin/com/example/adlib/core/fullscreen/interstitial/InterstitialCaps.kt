@@ -11,7 +11,7 @@ internal data class InterstitialOptions(
     val dailyCap: Int = 0,
     /** Only every Nth attempt may show; 1 = every attempt. */
     val oneInN: Int = 1,
-    /** How long showThen waits for an ad that is not pooled yet. */
+    /** How long showThen waits for an ad that is not pooled yet; clamped to the placement's `total_timeout_ms`. */
     val waitForAdMs: Long = 3_000L,
     /** Delays before the 1st, 2nd... retry of a failed background preload; then it stops until the next preload(). */
     val retryDelaysMs: List<Long> = listOf(5_000L, 15_000L),
