@@ -434,7 +434,7 @@ Distinguishing in-app Custom Tab clicks from external ones.
 - 2026-11-25 merged 9c40c43 as 4e6a2ef; QA rounds 1; owner-check:none
 
 ## T22 — Ads.install auto-attaches App Open resume
-- Status: ready
+- Status: in-progress
 - Type: feature · Size: s · Complex: no · Priority: p1 · Depends on: T21
 ### Goal
 Owner decision 2026-11-25 (Q9=B): app must not need to remember `attachResume()`. `Ads.install` registers it automatically when an App Open placement is enabled; `attachResume()` stays public and a repeat call is a no-op.
@@ -450,6 +450,7 @@ A detach API (owner: App Open stays attach-only).
 `Ads.install`, `AdsOptions`, `AppOpenResume` wiring, `sample/`, `README.md`, tests.
 ### Log
 - 2026-11-25 filed (owner decided Q9=B).
+- 2026-11-25 in-progress (tracker)
 
 ## T23 — Clamp waitForAdMs to total_timeout (interstitial + rewarded)
 - Status: ready
