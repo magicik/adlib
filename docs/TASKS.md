@@ -488,3 +488,35 @@ detekt; any logic change; renames.
 `build.gradle.kts` files, `gradle/libs.versions.toml`, `.editorconfig`, `scripts/check.sh`, README, many `*.kt` (format-only). Protected paths (build files, gradle/, scripts/) => owner merges with `OWNER=1`.
 ### Log
 - 2026-11-25 filed (owner approved ktlint).
+
+## T25 — Comment cleanups (sample hashed id, AdsRuntime attach)
+- Status: ready
+- Type: chore · Size: s · Complex: no · Priority: p2 · Depends on: none
+### Goal
+Owner approved (2026-11-25) two comment-only cleanups found by QA.
+### Acceptance criteria
+- [ ] `sample/.../SampleApp.kt`: the "remove for release" comment on the hardcoded UMP test device hashed id is replaced by one accurate line (sample-only debug/test device id; apps must use their own). No build-file or behaviour change.
+- [ ] `AdsRuntime.kt`: the "Ads.install attaches once" comment is corrected to say the controller ignores repeat `attachResume()` calls.
+- [ ] No other code change; `./scripts/check.sh` passes.
+### Out of scope
+Moving the id to local.properties/BuildConfig; ktlint-style fixes (T24 covers import order and line length).
+### Files likely touched
+`sample/.../SampleApp.kt`, `ads-core/.../AdsRuntime.kt` (comments only).
+### Log
+- 2026-11-25 filed (owner approved cleanup).
+
+## T26 — Config warnings emitted twice per show (state.config re-parses)
+- Status: ready
+- Type: bug · Size: s · Complex: no · Priority: p2 · Depends on: none
+### Goal
+Steps: placement with broken config JSON, trigger an interstitial/rewarded show. Expected: one `ConfigWarning` per distinct problem. Actual: `AdsState.config()` re-parses the JSON on every call and re-emits warnings, so one show can report the same warning more than once (seen at `isAdAllowed`, `take`, and T23's new clamp call). Evidence: QA nit on T23.
+### Acceptance criteria
+- [ ] Reproducing test (fails before fix): broken config JSON, one show flow -> the same warning is emitted once (not per `config()` call).
+- [ ] Parse result cached per placement and invalidated when the config JSON changes (test: new JSON -> re-parsed, new warnings emitted once).
+- [ ] Existing config/warning tests still pass; no change to parsing rules.
+### Out of scope
+Changing ConfigParser semantics or default-merging rules.
+### Files likely touched
+`ads-core/.../AdsState.kt` (or wherever `config()` lives), tests.
+### Log
+- 2026-11-25 filed (owner approved, from QA nit on T23).
