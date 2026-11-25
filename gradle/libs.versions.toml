@@ -16,6 +16,8 @@ lifecycle = "2.11.0"
 # ktlint CLI (run via JavaExec, see root build.gradle.kts). The jlleitschuh Gradle plugin was rejected: it
 # only creates source-set tasks when a Kotlin Gradle plugin is applied, and AGP 9 uses built-in Kotlin.
 ktlint = "1.8.0"
+# detekt CLI via JavaExec (same reason as ktlint). 1.23.8 = latest stable 1.x; 2.x is still alpha.
+detekt = "1.23.8"
 
 [libraries]
 ads-mobile-sdk = { group = "com.google.android.libraries.ads.mobile.sdk", name = "ads-mobile-sdk", version.ref = "adsMobileSdk" }
@@ -34,6 +36,7 @@ junit = { group = "junit", name = "junit", version.ref = "junit" }
 mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
 turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
 org-json = { group = "org.json", name = "json", version.ref = "orgJson" }
+detekt-cli = { module = "io.gitlab.arturbosch.detekt:detekt-cli", version.ref = "detekt" }
 ktlint-cli = { module = "com.pinterest.ktlint:ktlint-cli", version.ref = "ktlint" }
 
 [plugins]

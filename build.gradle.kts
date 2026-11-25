@@ -35,3 +35,35 @@ tasks.register<JavaExec>("ktlintFormat") {
     mainClass.set("com.pinterest.ktlint.Main")
     args(listOf("--format") + ktlintTargets)
 }
+
+// detekt: plain CLI via JavaExec (same reason as ktlint). Baseline = existing findings; only new ones fail.
+val detektCli: Configuration by configurations.creating
+dependencies {
+    detektCli(libs.detekt.cli)
+}
+
+val detektArgs =
+    listOf(
+        "--config", "config/detekt/detekt.yml",
+        "--baseline", "config/detekt/baseline.xml",
+        "--build-upon-default-config",
+        "--input",
+        subprojects.joinToString(",") { "${it.projectDir}/src" }.ifEmpty { "." },
+        "--excludes", "**/build/**",
+    )
+
+tasks.register<JavaExec>("detekt") {
+    group = "verification"
+    description = "Runs detekt on all Kotlin sources (baseline: config/detekt/baseline.xml)."
+    classpath = detektCli
+    mainClass.set("io.gitlab.arturbosch.detekt.cli.Main")
+    args(detektArgs)
+}
+
+tasks.register<JavaExec>("detektBaseline") {
+    group = "verification"
+    description = "Regenerates config/detekt/baseline.xml from current findings."
+    classpath = detektCli
+    mainClass.set("io.gitlab.arturbosch.detekt.cli.Main")
+    args(detektArgs + "--create-baseline")
+}
