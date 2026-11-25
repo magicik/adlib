@@ -508,7 +508,7 @@ Moving the id to local.properties/BuildConfig; ktlint-style fixes (T24 covers im
 - 2026-11-25 merged fa44adf as 3cbcd7b; no QA (chore); owner-check:none; note: the "remove for release" text was in README.md:37, not SampleApp.kt; AdsRuntime comment was already accurate
 
 ## T26 — Config warnings emitted twice per show (state.config re-parses)
-- Status: ready
+- Status: in-progress
 - Type: bug · Size: s · Complex: no · Priority: p2 · Depends on: none
 ### Goal
 Steps: placement with broken config JSON, trigger an interstitial/rewarded show. Expected: one `ConfigWarning` per distinct problem. Actual: `AdsState.config()` re-parses the JSON on every call and re-emits warnings, so one show can report the same warning more than once (seen at `isAdAllowed`, `take`, and T23's new clamp call). Evidence: QA nit on T23.
@@ -522,3 +522,4 @@ Changing ConfigParser semantics or default-merging rules.
 `ads-core/.../AdsState.kt` (or wherever `config()` lives), tests.
 ### Log
 - 2026-11-25 filed (owner approved, from QA nit on T23).
+- 2026-11-25 in-progress (tracker)
