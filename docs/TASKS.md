@@ -527,3 +527,22 @@ Changing ConfigParser semantics or default-merging rules.
 - 2026-11-25 filed (owner approved, from QA nit on T23).
 - 2026-11-25 in-progress (tracker)
 - 2026-11-25 merged fba30ea as e9c1425; QA rounds 1; owner-check:none
+
+## T27 — Add detekt with baseline
+- Status: ready
+- Type: chore · Size: m · Complex: no · Priority: p2 · Depends on: T24
+### Goal
+Owner approved detekt (2026-11-25). Static analysis in `./scripts/check.sh`, with a baseline so existing findings do not block; only NEW findings fail the check.
+### Acceptance criteria
+- [ ] detekt added (CLI via root task like ktlint in T24, or the Gradle plugin if it works with AGP 9 built-in Kotlin: verify it analyses `.kt` files of all 4 modules, not just `.kts`); version in `gradle/libs.versions.toml`, reason in the Dev report.
+- [ ] `config/detekt/detekt.yml` (minimal overrides) and a generated baseline file committed; `./scripts/check.sh` runs detekt and fails on a new finding (prove once with a deliberate violation, e.g. `catch (e: Exception)` swallowing, then remove it).
+- [ ] Rule `TooGenericExceptionCaught`/swallowed exceptions enabled so a `catch (Exception)` that can swallow `CancellationException` is flagged for new code.
+- [ ] Noisy rules (magic numbers, long methods in tests, etc.) relaxed with a one-line reason each; no mass rewrite of existing code. Existing findings go in the baseline.
+- [ ] Dev report lists the baseline size per rule so the owner can see what was parked.
+- [ ] README says how to run detekt and update the baseline. Test count unchanged; `./scripts/check.sh` passes.
+### Out of scope
+Fixing baseline findings; any logic change; Compose-specific rule sets unless trivial.
+### Files likely touched
+`build.gradle.kts`, `gradle/libs.versions.toml`, `config/detekt/`, `README.md`. Protected paths => owner merges with `OWNER=1`.
+### Log
+- 2026-11-25 filed (owner approved detekt).
