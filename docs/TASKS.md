@@ -550,7 +550,7 @@ Fixing baseline findings; any logic change; Compose-specific rule sets unless tr
 - 2026-11-25 waiting for owner merge: protected paths (build.gradle.kts, gradle/libs.versions.toml); branch chore/T27-detekt @870c2ca; DEV CHECK PASS (125 tests); detekt-cli 1.23.8 via root JavaExec; baseline 19 entries (4 SwallowedException worth a follow-up); run OWNER=1 ./scripts/merge-task.sh chore/T27-detekt 870c2caab2c0dacca899de0d22c4e7f373b63e9d (merge T28 first; README may conflict slightly)
 
 ## T28 — Set publishing groupId to com.magicik.adlib
-- Status: review
+- Status: done
 - Type: chore · Size: s · Complex: no · Priority: p2 · Depends on: none
 ### Goal
 Owner decided (2026-11-25): groupId = `com.magicik.adlib`. Replace `com.github.PLACEHOLDER` in the three publication blocks and remove the placeholder TODOs.
@@ -568,3 +568,4 @@ Renaming package `com.example.adlib` (still tentative; separate decision); publi
 - 2026-11-25 filed (owner decided groupId com.magicik.adlib).
 - 2026-11-25 in-progress (tracker)
 - 2026-11-25 waiting for owner merge: protected paths (ads-core/ads-testing/ads-ui-compose build.gradle.kts); branch chore/T28-groupid @fe04225; DEV CHECK PASS (125 tests); run OWNER=1 ./scripts/merge-task.sh chore/T28-groupid fe0422541c2819e3a55ad78986aa52b8fd996577; after merge update CLAUDE.md line 17 (groupId no longer PLACEHOLDER)
+- 2026-11-25 merged fe04225 as 9fbebd3 (OWNER=1); no QA (chore); owner-check: confirm on first real JitPack build whether custom group com.magicik.adlib is served (README caveat)
