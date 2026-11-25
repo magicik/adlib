@@ -308,6 +308,19 @@ class AppOpenResumeControllerTest {
     }
 
     @Test
+    fun `click skip expires after the pause window`() = runTest {
+        for ((awayMs, shown) in listOf(60_000L to 0, 60_001L to 1)) {
+            val env = Env(this)
+            env.launch()
+            env.cacheOne()
+            env.bus.emit(AdsEvent.Clicked("home_native"))
+            env.scope.runCurrent()
+            env.roundTrip(awayMs = awayMs)
+            assertEquals("away $awayMs", shown, env.gateway.shown.size)
+        }
+    }
+
+    @Test
     fun `pause never resumed expires by itself`() = runTest {
         val env = Env(this)
         env.launch()
