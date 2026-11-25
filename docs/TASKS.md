@@ -416,7 +416,7 @@ Tests in `ads-core/src/test/` only.
 - 2026-11-25 merged 4a0c09b as 9e57cd3; no QA (test); owner-check:none; note: interstitial/rewarded wait is bounded by waitForAdMs (3s/10s defaults), not total_timeout; bound holds only while waitForAdMs <= total_timeout - owner may want a clamp
 
 ## T21 — App Open: click-skip flag expires after 60s
-- Status: ready
+- Status: in-progress
 - Type: bug · Size: s · Complex: no · Priority: p2 · Depends on: none
 ### Goal
 Today any `Clicked` skips the next App Open with no expiry, so a click an hour ago can suppress an unrelated resume. Owner decision 2026-11-25 (Q8=B): the skip flag is valid for 60s after the click, then ignored.
@@ -430,6 +430,7 @@ Distinguishing in-app Custom Tab clicks from external ones.
 `ads-core/.../appopen/`, tests.
 ### Log
 - 2026-11-25 filed (owner decided Q8=B).
+- 2026-11-25 in-progress (tracker)
 
 ## T22 — Ads.install auto-attaches App Open resume
 - Status: ready
