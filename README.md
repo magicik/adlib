@@ -39,7 +39,7 @@ Set `com.google.android.gms.ads.APPLICATION_ID` meta-data in the manifest.
   the placement default, bad/empty JSON = default, no default = off, `tiers.normal[].enable` missing = true.
 - Formats: `Ads.interstitial.showThen(...)`, `Ads.rewarded.request(...)`, `Ads.native`, `Ads.banner`, `Ads.isPremium`.
 - Test mode: `AdsOptions.debug = true` and `testDeviceIds`; use Google test ad unit ids.
-- `revenueStore` / `capStore` default to in-memory: caps reset on process death. Provide your own to persist.
+- `revenueStore` defaults to in-memory (resets on process death); `capStore` defaults to SharedPreferences (daily cap survives restarts).
 - `ageRestricted` is not supported yet.
 
 ## Sample app and smoke test

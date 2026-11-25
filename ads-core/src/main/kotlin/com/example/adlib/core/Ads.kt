@@ -11,6 +11,7 @@ import com.example.adlib.core.consent.ConsentGate
 import com.example.adlib.core.consent.UmpConsentSource
 import com.example.adlib.core.fullscreen.AppActivityTracker
 import com.example.adlib.core.fullscreen.interstitial.InterstitialController
+import com.example.adlib.core.fullscreen.interstitial.SharedPreferencesCapStore
 import com.example.adlib.core.fullscreen.rewarded.RewardedController
 import com.example.adlib.core.gateway.MainSerialDispatcher
 import com.example.adlib.core.gateway.SdkAdGateway
@@ -91,6 +92,7 @@ object Ads {
                 MobileAdsInitializer(application, testDeviceIds = options.testDeviceIds),
                 SdkAdGateway(serial, Clock.System),
                 tracker, tracker, Clock.System,
+                SharedPreferencesCapStore.of(application),
             )
             tracker.addDestroyedListener { activity -> serial.post { created.consent.onActivityDestroyed(activity) } }
             runtime = created

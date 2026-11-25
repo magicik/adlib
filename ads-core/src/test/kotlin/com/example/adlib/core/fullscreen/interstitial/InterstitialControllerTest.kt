@@ -24,6 +24,7 @@ import com.example.adlib.testing.FakeAdGateway
 import com.example.adlib.testing.FakeBehavior.Fail
 import com.example.adlib.testing.FakeBehavior.Load
 import com.example.adlib.testing.FakeBehavior.Never
+import com.example.adlib.testing.FakeCapStore
 import com.example.adlib.testing.FakeClock
 import com.example.adlib.testing.FakeRevenueStore
 import io.mockk.every
@@ -65,7 +66,7 @@ class InterstitialControllerTest {
         val gate = FullScreenGate(state.isPremium, tracker, bus, clock, scope.backgroundScope, gateOptions)
         val controller = InterstitialController(
             pool, gate, gateway, state, testMode,
-            InterstitialCaps(options, clock, testMode, InMemoryCapStore(), TimeZone.getTimeZone("UTC")),
+            InterstitialCaps(options, clock, testMode, FakeCapStore(), TimeZone.getTimeZone("UTC")),
             tracker, bus, clock, scope.backgroundScope, options,
         )
         val activity = mockk<Activity>(relaxed = true)

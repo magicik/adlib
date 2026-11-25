@@ -13,6 +13,7 @@ import com.example.adlib.core.fullscreen.ActivityTracker
 import com.example.adlib.core.fullscreen.ForegroundSource
 import com.example.adlib.core.fullscreen.FullScreenGate
 import com.example.adlib.core.fullscreen.FullScreenGateOptions
+import com.example.adlib.core.fullscreen.interstitial.CapStore
 import com.example.adlib.core.fullscreen.interstitial.InMemoryCapStore
 import com.example.adlib.core.fullscreen.interstitial.InterstitialCaps
 import com.example.adlib.core.fullscreen.interstitial.InterstitialController
@@ -49,6 +50,8 @@ internal class AdsRuntime(
     tracker: ActivityTracker,
     foreground: ForegroundSource,
     clock: Clock,
+    /** Used when [AdsOptions.capStore] is null; `Ads.install` passes the SharedPreferences store. */
+    defaultCapStore: CapStore = InMemoryCapStore(),
 ) {
     val bus = AdsEventBus(serial, options.listener)
     val consent = ConsentGate(consentSource, scope)
@@ -72,7 +75,7 @@ internal class AdsRuntime(
         val interOptions = InterstitialOptions(dailyCap = options.fullScreen.dailyCap, oneInN = options.fullScreen.oneInN)
         interstitial = InterstitialController(
             pool, gate, gateway, state, testMode,
-            InterstitialCaps(interOptions, clock, testMode, options.capStore ?: InMemoryCapStore()),
+            InterstitialCaps(interOptions, clock, testMode, options.capStore ?: defaultCapStore),
             tracker, bus, clock, scope, interOptions,
         )
         appOpen = validated.registry.all.firstOrNull { it.format == AdFormat.APP_OPEN }?.let {
