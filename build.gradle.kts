@@ -11,3 +11,27 @@ subprojects {
         filter.isFailOnNoMatchingTests = false
     }
 }
+
+// ktlint: plain CLI via JavaExec (see libs.versions.toml for why not the Gradle plugin).
+val ktlintCli: Configuration by configurations.creating
+dependencies {
+    ktlintCli(libs.ktlint.cli) { artifact { classifier = "all" } }
+}
+
+val ktlintTargets = listOf("**/src/**/*.kt", "**/*.gradle.kts", "!**/build/**")
+
+tasks.register<JavaExec>("ktlintCheck") {
+    group = "verification"
+    description = "Runs ktlint on all Kotlin sources and Gradle scripts."
+    classpath = ktlintCli
+    mainClass.set("com.pinterest.ktlint.Main")
+    args(ktlintTargets)
+}
+
+tasks.register<JavaExec>("ktlintFormat") {
+    group = "formatting"
+    description = "Auto-formats all Kotlin sources and Gradle scripts with ktlint."
+    classpath = ktlintCli
+    mainClass.set("com.pinterest.ktlint.Main")
+    args(listOf("--format") + ktlintTargets)
+}

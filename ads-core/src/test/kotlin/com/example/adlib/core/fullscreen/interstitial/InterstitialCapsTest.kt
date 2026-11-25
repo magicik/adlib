@@ -60,7 +60,17 @@ class InterstitialCapsTest {
 
     @Test
     fun `one in N counts attempts and only those that passed day cap and interval`() {
-        for ((n, expected) in mapOf(1 to "AAAA", 2 to "OAOA", 3 to "OOAO").mapValues { it.value.map { c -> if (c == 'A') CapDecision.ALLOWED else CapDecision.ONE_IN_N } }) {
+        for ((n, expected) in mapOf(1 to "AAAA", 2 to "OAOA", 3 to "OOAO").mapValues {
+            it.value.map { c ->
+                if (c ==
+                    'A'
+                ) {
+                    CapDecision.ALLOWED
+                } else {
+                    CapDecision.ONE_IN_N
+                }
+            }
+        }) {
             val caps = caps(InterstitialOptions(minIntervalMs = 0, oneInN = n), store = FakeCapStore())
             assertEquals("N=$n", expected, List(4) { caps.tryConsume() })
         }

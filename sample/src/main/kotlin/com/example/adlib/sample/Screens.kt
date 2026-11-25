@@ -120,7 +120,8 @@ fun RewardedScreen(activity: Activity) {
             {
                 status = R.string.reward_waiting
                 Ads.rewarded.request(
-                    activity, placement,
+                    activity,
+                    placement,
                     onEarned = { unlocked = true },
                     onClosed = { status = R.string.reward_closed },
                     onUnavailable = { status = R.string.reward_unavailable },

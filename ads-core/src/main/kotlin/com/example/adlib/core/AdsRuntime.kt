@@ -60,7 +60,11 @@ internal class AdsRuntime(
     private val testMode = TestMode(options.revenueStore ?: InMemoryRevenueStore(), bus)
     private val pool = AdPool(gateway, state, testMode, bootstrap::awaitReadyToLoad, bus, clock, scope, options.pool)
     private val gate = FullScreenGate(
-        state.isPremium, tracker, bus, clock, scope,
+        state.isPremium,
+        tracker,
+        bus,
+        clock,
+        scope,
         FullScreenGateOptions(minGapAfterFullScreenMs = options.fullScreen.minGapAfterFullScreenMs),
     )
     val interstitial: InterstitialController

@@ -1,10 +1,10 @@
 package com.example.adlib.core.consent
 
 import com.google.android.ump.ConsentDebugSettings.DebugGeography
-import org.junit.Test
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
+import org.junit.Test
 
 class ConsentDebugConfigTest {
     @Test

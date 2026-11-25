@@ -111,7 +111,8 @@ internal class RewardedController(
             if (!isAlive(host.get())) return
             if (!state.isAdAllowed(placement)) return
             if (!gate.reserve(owner)) return
-            val handle = pool.takeOwned(placement, minOf(options.waitForAdMs, state.config(placement).totalTimeoutMs)) { taking = it } ?: return
+            val handle =
+                pool.takeOwned(placement, minOf(options.waitForAdMs, state.config(placement).totalTimeoutMs)) { taking = it } ?: return
 
             val activity = host.get()
             val expired = clock.nowMs() - handle.loadedAt >= AdPool.ttlMs(AdFormat.REWARDED)

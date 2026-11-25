@@ -49,7 +49,14 @@ fun NativeAdLargeContent(ad: SdkNativeAd) {
             Column(Modifier.weight(1f)) {
                 TitleRow(ad)
                 ad.advertiser?.let { text ->
-                    NativeAdAdvertiserView { Text(text, maxLines = 1, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.bodySmall) }
+                    NativeAdAdvertiserView {
+                        Text(
+                            text,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                    }
                 }
             }
             Spacer(Modifier.width(AdChoicesSpace))

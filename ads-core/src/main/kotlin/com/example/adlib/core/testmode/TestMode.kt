@@ -44,7 +44,7 @@ internal class TestMode(
      */
     fun shouldHideNative(placement: Placement, headline: String? = null): Boolean {
         if (isTestHeadline(headline)) return false // owner 2026-11-24: a test ad never reports revenue
-        val hide = !snapshot.hasPaidEvent &&snapshot.totalMicrosByCurrency.values.none { it > 0L }
+        val hide = !snapshot.hasPaidEvent && snapshot.totalMicrosByCurrency.values.none { it > 0L }
         if (hide) events.emit(AdsEvent.HiddenOnPurpose(placement.name, HIDDEN_R27B_MESSAGE))
         return hide
     }

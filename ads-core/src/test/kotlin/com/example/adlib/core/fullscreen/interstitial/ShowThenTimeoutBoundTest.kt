@@ -40,7 +40,8 @@ import java.util.concurrent.atomic.AtomicInteger
 @OptIn(ExperimentalCoroutinesApi::class)
 class ShowThenTimeoutBoundTest {
     private val placement = Placement(
-        "inter", AdFormat.INTERSTITIAL,
+        "inter",
+        AdFormat.INTERSTITIAL,
         default = PlacementConfig(tiers = AdTiers(normal = listOf(AdUnitTier("n1", 10_000)))),
     )
     private val totalTimeoutMs = PlacementConfig.DEFAULT_TOTAL_TIMEOUT_MS
@@ -71,7 +72,8 @@ class ShowThenTimeoutBoundTest {
             case.behavior?.let { gateway.script(AdFormat.INTERSTITIAL, it) }
             val tracker = FakeActivityTracker()
             val pool = AdPool(gateway, state, testMode, case.consentReady, bus, clock, backgroundScope)
-            val gate = FullScreenGate(state.isPremium, tracker, bus, clock, backgroundScope, FullScreenGateOptions(minGapAfterFullScreenMs = 0))
+            val gate =
+                FullScreenGate(state.isPremium, tracker, bus, clock, backgroundScope, FullScreenGateOptions(minGapAfterFullScreenMs = 0))
             val options = InterstitialOptions(minIntervalMs = 0)
             val controller = InterstitialController(
                 pool, gate, gateway, state, testMode,

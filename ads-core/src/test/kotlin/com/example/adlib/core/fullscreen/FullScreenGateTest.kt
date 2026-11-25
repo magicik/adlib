@@ -27,8 +27,12 @@ class FullScreenGateTest {
         val tracker = FakeActivityTracker()
         val forced = mutableListOf<Pair<String, ForcedRelease>>()
         val gate = FullScreenGate(
-            premium, tracker, AdsEventBus(serial, AdsEventListener { events += it }),
-            Clock { scope.testScheduler.currentTime }, scope.backgroundScope, options,
+            premium,
+            tracker,
+            AdsEventBus(serial, AdsEventListener { events += it }),
+            Clock { scope.testScheduler.currentTime },
+            scope.backgroundScope,
+            options,
         )
         val a = owner("a")
         val b = owner("b")
@@ -46,18 +50,44 @@ class FullScreenGateTest {
 
         val cases = listOf(
             Case("reserve from Idle", { listOf(gate.reserve(a)) }, listOf(true), { GateState.Reserved(a) }),
-            Case("second reserve while Reserved", { listOf(gate.reserve(a), gate.reserve(b)) }, listOf(true, false), { GateState.Reserved(a) }),
+            Case(
+                "second reserve while Reserved",
+                { listOf(gate.reserve(a), gate.reserve(b)) },
+                listOf(true, false),
+                { GateState.Reserved(a) },
+            ),
             Case("same owner reserves twice", { listOf(gate.reserve(a), gate.reserve(a)) }, listOf(true, false), { GateState.Reserved(a) }),
             Case("reserve then show", { listOf(gate.reserve(a), gate.show(a)) }, listOf(true, true), { GateState.Showing(a) }),
-            Case("second reserve while Showing", { listOf(gate.reserve(a), gate.show(a), gate.reserve(b)) }, listOf(true, true, false), { GateState.Showing(a) }),
+            Case("second reserve while Showing", {
+                listOf(gate.reserve(a), gate.show(a), gate.reserve(b))
+            }, listOf(true, true, false), { GateState.Showing(a) }),
             Case("show without reserve", { listOf(gate.show(a)) }, listOf(false), { GateState.Idle }),
             Case("show by a non-holder", { listOf(gate.reserve(a), gate.show(b)) }, listOf(true, false), { GateState.Reserved(a) }),
-            Case("show twice", { listOf(gate.reserve(a), gate.show(a), gate.show(a)) }, listOf(true, true, false), { GateState.Showing(a) }),
+            Case(
+                "show twice",
+                { listOf(gate.reserve(a), gate.show(a), gate.show(a)) },
+                listOf(true, true, false),
+                { GateState.Showing(a) },
+            ),
             Case("release while Reserved", { listOf(gate.reserve(a)).also { gate.release(a) } }, listOf(true), { GateState.Idle }),
-            Case("closed while Showing", { listOf(gate.reserve(a), gate.show(a)).also { gate.closed(a) } }, listOf(true, true), { GateState.Idle }),
-            Case("release by a non-holder is ignored", { listOf(gate.reserve(a)).also { gate.release(b) } }, listOf(true), { GateState.Reserved(a) }),
-            Case("closed by a non-holder is ignored", { listOf(gate.reserve(a), gate.show(a)).also { gate.closed(b) } }, listOf(true, true), { GateState.Showing(a) }),
-            Case("reserve again after release", { listOf(gate.reserve(a)).also { gate.release(a) } + gate.reserve(b) }, listOf(true, true), { GateState.Reserved(b) }),
+            Case(
+                "closed while Showing",
+                { listOf(gate.reserve(a), gate.show(a)).also { gate.closed(a) } },
+                listOf(true, true),
+                { GateState.Idle },
+            ),
+            Case(
+                "release by a non-holder is ignored",
+                { listOf(gate.reserve(a)).also { gate.release(b) } },
+                listOf(true),
+                { GateState.Reserved(a) },
+            ),
+            Case("closed by a non-holder is ignored", {
+                listOf(gate.reserve(a), gate.show(a)).also { gate.closed(b) }
+            }, listOf(true, true), { GateState.Showing(a) }),
+            Case("reserve again after release", {
+                listOf(gate.reserve(a)).also { gate.release(a) } + gate.reserve(b)
+            }, listOf(true, true), { GateState.Reserved(b) }),
         )
         for (case in cases) {
             val env = env()
