@@ -83,7 +83,8 @@ internal class InterstitialCaps(
 
     private fun current(now: Long): CapSnapshot {
         val bucket = Math.floorDiv(now + zone.getOffset(now), DAY_MS)
-        return if (snapshot.dayBucket == bucket) snapshot else snapshot.copy(dayBucket = bucket, dayCount = 0)
+        // Clock moved back (bucket < stored): keep the stored day, so rewinding the clock cannot dodge the cap.
+        return if (bucket <= snapshot.dayBucket) snapshot else snapshot.copy(dayBucket = bucket, dayCount = 0)
     }
 
     private fun save(new: CapSnapshot) {
