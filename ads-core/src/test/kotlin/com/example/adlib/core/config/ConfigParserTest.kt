@@ -36,7 +36,9 @@ class ConfigParserTest {
             Case(
                 "legacy list_ads is ignored with a warning",
                 """{"enable":false,"list_ads":[{"enable_ad":true,"adunit":"old"}]}""",
-                appDefault, appDefault, warns = true,
+                appDefault,
+                appDefault,
+                warns = true,
             ),
             Case(
                 "missing fields come from the default one by one",
@@ -64,13 +66,15 @@ class ConfigParserTest {
             Case(
                 "wrong type per field falls back to that field",
                 """{"enable":"yes","total_timeout_ms":true,"tiers":"x","refresh":[1],"gone_in_test_mode":null}""",
-                appDefault, appDefault,
+                appDefault,
+                appDefault,
             ),
             Case(
                 "wrong type in nested fields falls back to that field",
                 """{"tiers":{"high_floor":{"enable":"maybe","adunit":5},"normal":{"adunit":"u"}},
                    "refresh":{"seconds":"soon","max_count":99999999999}}""",
-                appDefault, appDefault,
+                appDefault,
+                appDefault,
             ),
             Case(
                 "unknown keys are ignored",

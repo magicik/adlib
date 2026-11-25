@@ -4,11 +4,11 @@ import android.app.Application
 import com.example.adlib.core.Ads
 import com.example.adlib.core.AdsOptions
 import com.example.adlib.core.FullScreenOptions
-import com.example.adlib.core.consent.ConsentDebugConfig
-import com.example.adlib.core.consent.ConsentDebugGeography
 import com.example.adlib.core.config.AdTiers
 import com.example.adlib.core.config.AdUnitTier
 import com.example.adlib.core.config.PlacementConfig
+import com.example.adlib.core.consent.ConsentDebugConfig
+import com.example.adlib.core.consent.ConsentDebugGeography
 import com.example.adlib.core.gateway.AdFormat
 import com.example.adlib.core.placement.Placement
 
@@ -40,7 +40,7 @@ class SampleApp : Application() {
                 // Short gap so the interstitial can be tried repeatedly by hand.
                 fullScreen = FullScreenOptions(minGapAfterFullScreenMs = 15_000L),
                 // Sample-only UMP debug/test device id (hashed); a real app must use its own.
-                consentDebug =ConsentDebugConfig(ConsentDebugGeography.EEA, listOf("B03100305F5BD40681E0EBC410441D2D")),
+                consentDebug = ConsentDebugConfig(ConsentDebugGeography.EEA, listOf("B03100305F5BD40681E0EBC410441D2D")),
                 debug = true,
                 listener = { EventLog.add(it) },
             ),

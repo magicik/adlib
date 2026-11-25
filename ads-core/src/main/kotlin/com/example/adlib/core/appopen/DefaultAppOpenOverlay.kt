@@ -103,5 +103,4 @@ private class AndroidSurface(host: Activity, private val content: (Activity) -> 
         root?.let { (it.parent as? ViewGroup)?.removeView(it) }
         root = null
     }
-
 }

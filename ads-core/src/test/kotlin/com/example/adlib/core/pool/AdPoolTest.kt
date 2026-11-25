@@ -59,8 +59,14 @@ class AdPoolTest {
         val state = AdsState(premium, { null }, bus) { canRequest }
         val testMode = TestMode(FakeRevenueStore(), bus)
         val pool = AdPool(
-            gateway, state, testMode, { readyCalls++; ready }, bus,
-            Clock { scope.testScheduler.currentTime }, scope.backgroundScope, options,
+            gateway,
+            state,
+            testMode,
+            { readyCalls++; ready },
+            bus,
+            Clock { scope.testScheduler.currentTime },
+            scope.backgroundScope,
+            options,
         )
 
         fun units() = gateway.loadRequests.map { it.second }
@@ -111,7 +117,12 @@ class AdPoolTest {
 
     @Test
     fun `no request and NoAd at once when not ready, not allowed or gone in test mode`() = runTest {
-        data class Case(val name: String, val format: AdFormat = AdFormat.INTERSTITIAL, val setup: Env.() -> Unit, val config: PlacementConfig = cfg("n1" to 10_000))
+        data class Case(
+            val name: String,
+            val format: AdFormat = AdFormat.INTERSTITIAL,
+            val setup: Env.() -> Unit,
+            val config: PlacementConfig = cfg("n1" to 10_000),
+        )
         val cases = listOf(
             Case("bootstrap not ready", setup = { ready = false }),
             Case("no consent", setup = { canRequest = false }),

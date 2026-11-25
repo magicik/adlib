@@ -44,7 +44,8 @@ import java.util.concurrent.atomic.AtomicInteger
 @OptIn(ExperimentalCoroutinesApi::class)
 class InterstitialControllerTest {
     private val placement = Placement(
-        "inter", AdFormat.INTERSTITIAL,
+        "inter",
+        AdFormat.INTERSTITIAL,
         default = PlacementConfig(tiers = AdTiers(normal = listOf(AdUnitTier("n1", 10_000)))),
     )
 
@@ -91,7 +92,13 @@ class InterstitialControllerTest {
 
     @Test
     fun `action runs exactly once and the gate is Idle afterwards in every branch`() = runTest {
-        class Case(val name: String, val shownAds: Int = 0, val options: InterstitialOptions = openOptions, val gate: FullScreenGateOptions = noGap, val body: TestScope.(Env) -> AtomicInteger)
+        class Case(
+            val name: String,
+            val shownAds: Int = 0,
+            val options: InterstitialOptions = openOptions,
+            val gate: FullScreenGateOptions = noGap,
+            val body: TestScope.(Env) -> AtomicInteger,
+        )
 
         val cases = listOf(
             Case("shown then dismissed", shownAds = 1) { e ->
@@ -177,7 +184,13 @@ class InterstitialControllerTest {
 
         e.gateway.dismiss(e.gateway.handles[0]); runCurrent()
         assertEquals(1, n.get())
-        assertEquals(listOf(AdsEvent.Shown("inter"), AdsEvent.Dismissed("inter")), e.events.filter { it is AdsEvent.Shown || it is AdsEvent.Dismissed })
+        assertEquals(
+            listOf(AdsEvent.Shown("inter"), AdsEvent.Dismissed("inter")),
+            e.events.filter {
+                it is AdsEvent.Shown ||
+                    it is AdsEvent.Dismissed
+            },
+        )
     }
 
     @Test

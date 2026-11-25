@@ -43,7 +43,8 @@ import org.junit.Test
 @OptIn(ExperimentalCoroutinesApi::class)
 class RewardedControllerTest {
     private val placement = Placement(
-        "reward", AdFormat.REWARDED,
+        "reward",
+        AdFormat.REWARDED,
         default = PlacementConfig(tiers = AdTiers(normal = listOf(AdUnitTier("n1", 10_000)))),
     )
 
@@ -179,7 +180,8 @@ class RewardedControllerTest {
     @Test
     fun `rewarded ignores the gap and gone_in_test_mode`() = runTest {
         val gonePlacement = Placement(
-            "reward2", AdFormat.REWARDED,
+            "reward2",
+            AdFormat.REWARDED,
             default = PlacementConfig(goneInTestMode = true, tiers = AdTiers(normal = listOf(AdUnitTier("n1", 10_000)))),
         )
         val e = env(FullScreenGateOptions(minGapAfterFullScreenMs = 60_000))

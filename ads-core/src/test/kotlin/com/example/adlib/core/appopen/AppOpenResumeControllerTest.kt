@@ -43,7 +43,8 @@ import org.junit.Test
 @OptIn(ExperimentalCoroutinesApi::class)
 class AppOpenResumeControllerTest {
     private val placement = Placement(
-        "app_open", AdFormat.APP_OPEN,
+        "app_open",
+        AdFormat.APP_OPEN,
         default = PlacementConfig(tiers = AdTiers(normal = listOf(AdUnitTier("ao1", 10_000)))),
     )
 
@@ -405,7 +406,8 @@ class AppOpenResumeControllerTest {
             Case("premium during the wait", Load(2_000), during = { state.setPremium(true) }),
             Case("host destroyed before the ad", Load(2_000), during = { tracker.pauseAppActivity() }),
             Case(
-                "excluded activity on top when the ad arrives", Load(2_000),
+                "excluded activity on top when the ad arrives",
+                Load(2_000),
                 AppOpenResumeOptions(excludedActivities = setOf(LockActivity::class.java)),
                 during = {
                     tracker.pauseAppActivity()

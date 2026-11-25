@@ -17,6 +17,7 @@ sealed interface AdsEvent {
     data class Clicked(override val placement: String) : AdsEvent
     data class Paid(override val placement: String, val paid: AdPaid) : AdsEvent
     data class ConfigWarning(override val placement: String, val message: String) : AdsEvent
+
     /** A native was loaded but not shown on purpose (R27b). */
     data class HiddenOnPurpose(override val placement: String, val message: String) : AdsEvent
     data class WatchdogFired(override val placement: String, val what: String) : AdsEvent

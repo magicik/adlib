@@ -33,7 +33,8 @@ import java.util.concurrent.atomic.AtomicInteger
 @OptIn(ExperimentalCoroutinesApi::class)
 class AdsRuntimeTest {
     private val inter = Placement(
-        "inter", AdFormat.INTERSTITIAL,
+        "inter",
+        AdFormat.INTERSTITIAL,
         default = PlacementConfig(tiers = AdTiers(normal = listOf(AdUnitTier("n1", 10_000)))),
     )
 
@@ -104,7 +105,8 @@ class AdsRuntimeTest {
     @Test
     fun `install attaches App Open resume unless opted out or Premium, and an explicit attach adds no second watcher`() = runTest {
         val appOpen = Placement(
-            "app_open", AdFormat.APP_OPEN,
+            "app_open",
+            AdFormat.APP_OPEN,
             default = PlacementConfig(tiers = AdTiers(normal = listOf(AdUnitTier("a1", 10_000)))),
         )
         fun coversAfterReturn(autoAttach: Boolean = true, premium: Boolean = false, explicitAttach: Boolean = false): Int {
@@ -112,7 +114,10 @@ class AdsRuntimeTest {
             val scope = CoroutineScope(SupervisorJob() + serial)
             val overlay = FakeAppOpenOverlay()
             val options = AdsOptions(
-                listOf(appOpen), appOpenOverlay = overlay, autoAttachResume = autoAttach, initialPremium = premium,
+                listOf(appOpen),
+                appOpenOverlay = overlay,
+                autoAttachResume = autoAttach,
+                initialPremium = premium,
             )
             val foreground = FakeForegroundSource()
             val tracker = FakeActivityTracker()
