@@ -33,11 +33,10 @@ dependencies {
     testImplementation(libs.turbine)
 }
 
-// TODO(publish): groupId must become com.github.<jitpack-user> (see README). Not published for real yet.
 publishing {
     publications {
         register<MavenPublication>("release") {
-            groupId = "com.github.PLACEHOLDER"
+            groupId = "com.magicik.adlib"
             artifactId = project.name
             version = "0.1.0-SNAPSHOT"
             afterEvaluate { from(components["release"]) }
