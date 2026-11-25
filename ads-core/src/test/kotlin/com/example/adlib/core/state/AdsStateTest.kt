@@ -71,4 +71,27 @@ class AdsStateTest {
         assertTrue(received.single() is AdsEvent.ConfigWarning)
         assertEquals("p", received.single().placement)
     }
+
+    @Test
+    fun `same broken json warns once across lookups, changed json is re-parsed`() {
+        val s = state()
+        json = """{"list_ads":[]}"""
+        s.config(placement)
+        s.isAdAllowed(placement)
+        s.config(placement)
+        scheduler.advanceUntilIdle()
+        assertEquals(1, received.size)
+        json = """{"list_ads":[{}]}"""
+        s.config(placement)
+        s.config(placement)
+        scheduler.advanceUntilIdle()
+        assertEquals(2, received.size)
+
+        json = null
+        s.config(placement)
+        json = """{"list_ads":[]}"""
+        s.config(placement)
+        scheduler.advanceUntilIdle()
+        assertEquals(3, received.size)
+    }
 }

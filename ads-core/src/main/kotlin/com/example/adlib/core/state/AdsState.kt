@@ -39,10 +39,22 @@ internal class AdsState(
         killSwitch = value
     }
 
-    /** Fresh config for [placement]; parser warnings go to the event listener. */
+    private class Parsed(val json: String?, val config: PlacementConfig)
+
+    private val parsed = HashMap<String, Parsed>()
+
+    /**
+     * Config for [placement]. The provider is read on every call, but the parse (and its warnings)
+     * is reused until the JSON text changes, so one problem is reported once.
+     */
+    @Synchronized
     fun config(placement: Placement): PlacementConfig {
+        val json = configProvider.json(placement.name)
+        parsed[placement.name]?.let { if (it.json == json) return it.config }
         val sink = ConfigWarningSink { events.emit(AdsEvent.ConfigWarning(placement.name, it)) }
-        return ConfigParser(sink).parse(configProvider.json(placement.name), placement.default)
+        val config = ConfigParser(sink).parse(json, placement.default)
+        parsed[placement.name] = Parsed(json, config)
+        return config
     }
 
     /** The one gate used at load AND at show (v3 6.6). */
