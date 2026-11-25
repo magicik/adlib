@@ -27,8 +27,9 @@ Style: no ktlint/detekt yet (not set up on purpose; add later).
 Install (once, `Application.onCreate`; no network, returns immediately):
 ```kotlin
 Ads.install(this, AdsOptions(placements = listOf(...), debug = BuildConfig.DEBUG))
-Ads.appOpen.attachResume()   // required for App Open on return to the app
 ```
+App Open on return to the app is watched automatically when an App Open placement is declared (not when `initialPremium`).
+Set `AdsOptions(autoAttachResume = false)` to take control and call `Ads.appOpen.attachResume()` yourself (a repeat call is a no-op).
 Set `com.google.android.gms.ads.APPLICATION_ID` meta-data in the manifest.
 
 - Consent: the app calls `Ads.consent.gather(activity)` (UMP). The SDK is initialised only once ads can be requested.

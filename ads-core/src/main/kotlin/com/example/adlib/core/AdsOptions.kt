@@ -38,6 +38,8 @@ class AdsOptions(
     val appOpenResume: AppOpenResumeOptions = AppOpenResumeOptions(),
     /** Drawn while the first return waits for its ad; null = `DefaultAppOpenOverlay`. */
     val appOpenOverlay: AppOpenOverlay? = null,
+    /** `install` starts watching returns to the app when an App Open placement exists; false = the app calls `Ads.appOpen.attachResume()`. */
+    val autoAttachResume: Boolean = true,
     val testDeviceIds: List<String> = emptyList(),
     /** UMP debug geography / test devices; default none. */
     val consentDebug: ConsentDebugConfig = ConsentDebugConfig(),

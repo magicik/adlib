@@ -32,7 +32,6 @@
     <string name="reward_closed">Ad closed</string>
     <string name="reward_unavailable">No ad available</string>
     <string name="reward_earned">Reward earned: unlocked!</string>
-    <string name="app_open_attach">Attach resume (cannot be detached)</string>
     <string name="app_open_pause">pauseForExternalFlow</string>
     <string name="app_open_external">Share sheet (with pauseForExternalFlow)</string>
     <string name="app_open_hint">Background the app and come back to see the App Open ad. Returning from the share sheet is skipped.</string>
