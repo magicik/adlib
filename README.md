@@ -19,9 +19,12 @@ export ANDROID_HOME=<sdk path>   # or local.properties (sdk.dir=..., git-ignored
 Style: ktlint (CLI via root Gradle tasks, rules in `.editorconfig`). `check.sh` runs it automatically.
 `./gradlew ktlintCheck` to lint, `./gradlew ktlintFormat` to auto-fix. No detekt yet.
 
-## TODO publish (JitPack)
-- Publishing blocks exist (`maven-publish`) with groupId `com.github.PLACEHOLDER`. TODO: replace with
-  `com.github.<jitpack-user>` once the repo host/user is known. Nothing is published yet.
+## Publishing
+- groupId `com.magicik.adlib`; artifacts `com.magicik.adlib:ads-core`, `com.magicik.adlib:ads-testing`,
+  `com.magicik.adlib:ads-ui-compose` (version from the publication blocks).
+- Local publish: `./gradlew publishToMavenLocal` (lands in `~/.m2/repository/com/magicik/adlib/`). Nothing is published for real.
+- Open question (owner check on the first real JitPack build): JitPack normally serves a GitHub repo as
+  `com.github.magicik:adlib:<tag>`; confirm whether the custom group `com.magicik.adlib` is served as-is.
 - If mediation is added later, exclude `play-services-ads` from dependencies.
 
 ## Usage
