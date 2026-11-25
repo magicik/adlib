@@ -359,3 +359,86 @@ Any change to production defaults; App Open detach API (owner: stays attach-only
 - 2026-11-24 filed (owner approved UMP debug settings).
 - 2026-11-24 in-progress (tracker).
 - 2026-11-24 merged 5cda1d7 as 569f978; QA rounds 1; owner-check:none.
+
+## T18 — Persist daily cap across process restarts (SharedPreferences)
+- Status: ready
+- Type: feature · Size: m · Complex: no · Priority: p1 · Depends on: none
+### Goal
+Owner decision 2026-11-25 (Q4=C): `dailyCap` must survive app kill/restart. Persist cap counters only (not revenue; revenue stays in memory). Use SharedPreferences, no new dependency.
+### Acceptance criteria
+- [ ] `CapStore` interface (read/increment daily count) with a SharedPreferences impl and an in-memory fake in `ads-testing`; existing cap logic uses the interface.
+- [ ] Counter is keyed by local date; a new day resets it (virtual-time test with FakeClock across midnight).
+- [ ] Count survives re-creating the cap object over the same store (simulated restart test).
+- [ ] Clock moving backwards (user edits time) never makes the count negative or throws; document chosen behaviour in a test.
+- [ ] `Ads.install` wires the SharedPreferences store by default.
+### Out of scope
+Persisting revenue; oneInN counters (stay in memory unless v3 says otherwise); DataStore.
+### Files likely touched
+`ads-core/.../cap/`, `ads-testing/`, `Ads.install` wiring, tests.
+### Log
+- 2026-11-25 filed (owner decided Q4=C).
+
+## T19 — Rewarded counts toward interstitial gap (but is never blocked by gap)
+- Status: ready
+- Type: feature · Size: s · Complex: no · Priority: p2 · Depends on: none
+### Goal
+Owner decision 2026-11-25 (Q5a=C): rewarded stays exempt from gap (user-initiated), but a shown rewarded must reset the gap timer so the next interstitial is not shown right after it.
+### Acceptance criteria
+- [ ] Rewarded show is never refused because of gap (existing behaviour kept, covered by a test).
+- [ ] After a rewarded is shown, an interstitial request within `gap` is refused; after `gap` it is allowed (FakeClock test).
+- [ ] App Open gap handling unchanged unless v3 says rewarded must affect it (check v3, note in report).
+### Out of scope
+Reward-after-watchdog behaviour (owner Q5b=A: reward may be lost, no change).
+### Files likely touched
+`ads-core/.../fullscreen/` (gate/gap state), tests.
+### Log
+- 2026-11-25 filed (owner decided Q5a=C, Q5b=A).
+
+## T20 — Test: showThen always runs `then` through total_timeout in every branch
+- Status: ready
+- Type: test · Size: s · Complex: no · Priority: p2 · Depends on: none
+### Goal
+Owner decision 2026-11-25 (Q7=C): no new hard cap; instead prove `total_timeout` bounds the wait and `then` always runs.
+### Acceptance criteria
+- [ ] Table-driven virtual-time test over the wait branches (ad never arrives, load fails, consent never ready, pool empty, gate busy) asserting `then` runs exactly once no later than `total_timeout`.
+- [ ] If any branch is found NOT bounded, stop and report to owner (do not silently add a cap).
+### Out of scope
+Production changes (unless a real unbounded branch is found, then owner decides).
+### Files likely touched
+Tests in `ads-core/src/test/` only.
+### Log
+- 2026-11-25 filed (owner decided Q7=C).
+
+## T21 — App Open: click-skip flag expires after 60s
+- Status: ready
+- Type: bug · Size: s · Complex: no · Priority: p2 · Depends on: none
+### Goal
+Today any `Clicked` skips the next App Open with no expiry, so a click an hour ago can suppress an unrelated resume. Owner decision 2026-11-25 (Q8=B): the skip flag is valid for 60s after the click, then ignored.
+### Acceptance criteria
+- [ ] Reproducing test (fails before fix): click, advance clock > 60s, resume -> App Open is allowed.
+- [ ] Click then resume within 60s -> still skipped (existing behaviour).
+- [ ] The 60s reuses the `pauseForExternalFlow` constant (no second magic number).
+### Out of scope
+Distinguishing in-app Custom Tab clicks from external ones.
+### Files likely touched
+`ads-core/.../appopen/`, tests.
+### Log
+- 2026-11-25 filed (owner decided Q8=B).
+
+## T22 — Ads.install auto-attaches App Open resume
+- Status: ready
+- Type: feature · Size: s · Complex: no · Priority: p1 · Depends on: T21
+### Goal
+Owner decision 2026-11-25 (Q9=B): app must not need to remember `attachResume()`. `Ads.install` registers it automatically when an App Open placement is enabled; `attachResume()` stays public and a repeat call is a no-op.
+### Acceptance criteria
+- [ ] Verify `install` can reach `Application` for lifecycle registration; if not, report to owner before changing the API.
+- [ ] Enabled App Open placement -> resume observer registered exactly once by `install`; none registered when disabled/Premium.
+- [ ] Explicit `attachResume()` after install does not double-register (test).
+- [ ] Opt-out flag in `AdsOptions` (default on) for apps that want manual control.
+- [ ] Sample no longer calls `attachResume()` manually; README updated.
+### Out of scope
+A detach API (owner: App Open stays attach-only).
+### Files likely touched
+`Ads.install`, `AdsOptions`, `AppOpenResume` wiring, `sample/`, `README.md`, tests.
+### Log
+- 2026-11-25 filed (owner decided Q9=B).
