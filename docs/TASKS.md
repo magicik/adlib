@@ -470,3 +470,21 @@ Changing default values; App Open overlayMaxMs.
 - 2026-11-25 filed (owner approved clamp after T20 finding).
 - 2026-11-25 in-progress (tracker)
 - 2026-11-25 merged 08c02e8 as c1b512f; QA rounds 1; owner-check:none
+
+## T24 — Add ktlint to check.sh
+- Status: ready
+- Type: chore · Size: m · Complex: no · Priority: p2 · Depends on: none
+### Goal
+Owner approved ktlint (2026-11-25). Add ktlint (Gradle plugin, version in the version catalog) so `./scripts/check.sh` fails on style violations. detekt is NOT part of this task.
+### Acceptance criteria
+- [ ] ktlint plugin applied to all Kotlin modules (ads-core, ads-testing, ads-ui-compose, sample) with version in `gradle/libs.versions.toml`; reason stated in the Dev report.
+- [ ] `./scripts/check.sh` runs `ktlintCheck` and fails on a violation (prove once with a deliberate violation, then remove it).
+- [ ] Existing violations fixed with `ktlintFormat` (formatting only, no behaviour change; diff reviewed to be style-only). If a rule is too noisy (e.g. max line length vs existing code), relax it in `.editorconfig` with a one-line reason instead of mass rewrites.
+- [ ] README (or docs) tells how to run `ktlintCheck` / `ktlintFormat`.
+- [ ] `./scripts/check.sh` passes on the final commit; test count unchanged.
+### Out of scope
+detekt; any logic change; renames.
+### Files likely touched
+`build.gradle.kts` files, `gradle/libs.versions.toml`, `.editorconfig`, `scripts/check.sh`, README, many `*.kt` (format-only). Protected paths (build files, gradle/, scripts/) => owner merges with `OWNER=1`.
+### Log
+- 2026-11-25 filed (owner approved ktlint).
