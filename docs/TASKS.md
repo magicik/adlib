@@ -454,7 +454,7 @@ A detach API (owner: App Open stays attach-only).
 - 2026-11-25 merged c0835b8 as 46136f5; QA rounds 1; owner-check:needed (device: install with App Open placement, no manual attach, background+return shows overlay+ad; autoAttachResume=false shows none)
 
 ## T23 — Clamp waitForAdMs to total_timeout (interstitial + rewarded)
-- Status: ready
+- Status: in-progress
 - Type: bug · Size: s · Complex: no · Priority: p2 · Depends on: none
 ### Goal
 Found by T20: the host wait for interstitial/rewarded is bounded by `waitForAdMs` (3s / 10s defaults), not `total_timeout`. If a caller sets `waitForAdMs > total_timeout`, `showThen` waits longer than the global bound. Owner decision 2026-11-25: effective wait = `min(waitForAdMs, total_timeout)`.
@@ -468,3 +468,4 @@ Changing default values; App Open overlayMaxMs.
 `ads-core/.../fullscreen/interstitial/`, `.../rewarded/`, tests.
 ### Log
 - 2026-11-25 filed (owner approved clamp after T20 finding).
+- 2026-11-25 in-progress (tracker)
