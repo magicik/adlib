@@ -399,7 +399,7 @@ Reward-after-watchdog behaviour (owner Q5b=A: reward may be lost, no change).
 - 2026-11-25 merged ebba7e2 as 3a41f17; QA rounds 1; owner-check:none (no production change needed, test only)
 
 ## T20 — Test: showThen always runs `then` through total_timeout in every branch
-- Status: in-progress
+- Status: done
 - Type: test · Size: s · Complex: no · Priority: p2 · Depends on: none
 ### Goal
 Owner decision 2026-11-25 (Q7=C): no new hard cap; instead prove `total_timeout` bounds the wait and `then` always runs.
@@ -413,6 +413,7 @@ Tests in `ads-core/src/test/` only.
 ### Log
 - 2026-11-25 filed (owner decided Q7=C).
 - 2026-11-25 in-progress (tracker)
+- 2026-11-25 merged 4a0c09b as 9e57cd3; no QA (test); owner-check:none; note: interstitial/rewarded wait is bounded by waitForAdMs (3s/10s defaults), not total_timeout; bound holds only while waitForAdMs <= total_timeout - owner may want a clamp
 
 ## T21 — App Open: click-skip flag expires after 60s
 - Status: ready
