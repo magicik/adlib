@@ -381,7 +381,7 @@ Persisting revenue; oneInN counters (stay in memory unless v3 says otherwise); D
 - 2026-11-25 merged 3f1457a as 689c3e7; QA rounds 1; owner-check:needed (device: hit dailyCap, force-stop, relaunch, cap still holds)
 
 ## T19 — Rewarded counts toward interstitial gap (but is never blocked by gap)
-- Status: in-progress
+- Status: done
 - Type: feature · Size: s · Complex: no · Priority: p2 · Depends on: none
 ### Goal
 Owner decision 2026-11-25 (Q5a=C): rewarded stays exempt from gap (user-initiated), but a shown rewarded must reset the gap timer so the next interstitial is not shown right after it.
@@ -396,6 +396,7 @@ Reward-after-watchdog behaviour (owner Q5b=A: reward may be lost, no change).
 ### Log
 - 2026-11-25 filed (owner decided Q5a=C, Q5b=A).
 - 2026-11-25 in-progress (tracker)
+- 2026-11-25 merged ebba7e2 as 3a41f17; QA rounds 1; owner-check:none (no production change needed, test only)
 
 ## T20 — Test: showThen always runs `then` through total_timeout in every branch
 - Status: ready
