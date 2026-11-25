@@ -450,3 +450,19 @@ A detach API (owner: App Open stays attach-only).
 `Ads.install`, `AdsOptions`, `AppOpenResume` wiring, `sample/`, `README.md`, tests.
 ### Log
 - 2026-11-25 filed (owner decided Q9=B).
+
+## T23 — Clamp waitForAdMs to total_timeout (interstitial + rewarded)
+- Status: ready
+- Type: bug · Size: s · Complex: no · Priority: p2 · Depends on: none
+### Goal
+Found by T20: the host wait for interstitial/rewarded is bounded by `waitForAdMs` (3s / 10s defaults), not `total_timeout`. If a caller sets `waitForAdMs > total_timeout`, `showThen` waits longer than the global bound. Owner decision 2026-11-25: effective wait = `min(waitForAdMs, total_timeout)`.
+### Acceptance criteria
+- [ ] Reproducing test (fails before fix): interstitial and rewarded with `waitForAdMs` > `total_timeout` run `then` by `total_timeout`, not later (FakeClock).
+- [ ] Defaults unchanged (3s / 10s with 15s total_timeout) — existing tests still pass.
+- [ ] Clamp applied in one place per controller (no duplicated min logic); KDoc on the option states the clamp.
+### Out of scope
+Changing default values; App Open overlayMaxMs.
+### Files likely touched
+`ads-core/.../fullscreen/interstitial/`, `.../rewarded/`, tests.
+### Log
+- 2026-11-25 filed (owner approved clamp after T20 finding).
