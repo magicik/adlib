@@ -16,7 +16,8 @@ Design (source of truth): `docs/ads-lib-phase1-v3.txt`.
 export ANDROID_HOME=<sdk path>   # or local.properties (sdk.dir=..., git-ignored)
 ./scripts/check.sh               # assembleDebug + testDebugUnitTest, log in build/check.log
 ```
-Style: no ktlint/detekt yet (not set up on purpose; add later).
+Style: ktlint (CLI via root Gradle tasks, rules in `.editorconfig`). `check.sh` runs it automatically.
+`./gradlew ktlintCheck` to lint, `./gradlew ktlintFormat` to auto-fix. No detekt yet.
 
 ## TODO publish (JitPack)
 - Publishing blocks exist (`maven-publish`) with groupId `com.github.PLACEHOLDER`. TODO: replace with
