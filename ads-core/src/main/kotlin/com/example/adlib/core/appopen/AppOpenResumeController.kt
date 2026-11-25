@@ -90,7 +90,7 @@ internal class AppOpenResumeController(
     private val scope = CoroutineScope(serialScope.coroutineContext + SupervisorJob(serialScope.coroutineContext[Job]))
     private var attached = false
     private var armed = false
-    private var clickedSinceReturn = false
+    private var clickedAt: Long? = null
     private var pausedUntil: Long? = null
     private var backgroundAt: Long? = null
     private var attempt: Job? = null
@@ -104,7 +104,7 @@ internal class AppOpenResumeController(
         scope.launch {
             if (attached) return@launch
             attached = true
-            events.observe { if (it is AdsEvent.Clicked) clickedSinceReturn = true }
+            events.observe { if (it is AdsEvent.Clicked) clickedAt = clock.nowMs() }
             var launched = false
             foreground.isForeground.collect { isForeground ->
                 when {
@@ -131,10 +131,11 @@ internal class AppOpenResumeController(
     private fun onReturn() {
         val now = clock.nowMs()
         val awayMs = now - (backgroundAt ?: now)
-        val clicked = clickedSinceReturn
+        // A click only counts for the same window as a pause.
+        val clicked = clickedAt?.let { now - it <= AppOpenResumeOptions.DEFAULT_PAUSE_MS } ?: false
         val paused = pausedUntil?.let { now <= it } ?: false
         // One-shot: whatever happens, they only ever cover this return.
-        clickedSinceReturn = false
+        clickedAt = null
         pausedUntil = null
         if (clicked || paused || formShowing.value || awayMs < options.minBackgroundMs) return
         attempt?.cancel()
