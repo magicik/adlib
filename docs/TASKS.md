@@ -548,7 +548,7 @@ Fixing baseline findings; any logic change; Compose-specific rule sets unless tr
 - 2026-11-25 filed (owner approved detekt).
 
 ## T28 — Set publishing groupId to com.magicik.adlib
-- Status: in-progress
+- Status: review
 - Type: chore · Size: s · Complex: no · Priority: p2 · Depends on: none
 ### Goal
 Owner decided (2026-11-25): groupId = `com.magicik.adlib`. Replace `com.github.PLACEHOLDER` in the three publication blocks and remove the placeholder TODOs.
@@ -565,3 +565,4 @@ Renaming package `com.example.adlib` (still tentative; separate decision); publi
 ### Log
 - 2026-11-25 filed (owner decided groupId com.magicik.adlib).
 - 2026-11-25 in-progress (tracker)
+- 2026-11-25 waiting for owner merge: protected paths (ads-core/ads-testing/ads-ui-compose build.gradle.kts); branch chore/T28-groupid @fe04225; DEV CHECK PASS (125 tests); run OWNER=1 ./scripts/merge-task.sh chore/T28-groupid fe0422541c2819e3a55ad78986aa52b8fd996577; after merge update CLAUDE.md line 17 (groupId no longer PLACEHOLDER)
