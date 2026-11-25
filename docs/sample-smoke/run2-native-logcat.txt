@@ -1,0 +1,21 @@
+--------- beginning of main
+11-25 13:51:58.680  5518  5518 I AdLibSample: native_small: Shown(placement=native_small)
+11-25 13:51:58.680  5518  5518 I AdLibSample: native_small: Paid 0.0 USD
+11-25 13:51:59.809  5518  5518 I AdLibSample: native_small: Loaded(placement=native_small, adUnit=ca-app-pub-3940256099942544/2247696110)
+11-25 13:51:59.902  5518  5518 I AdLibSample: native_large: Loaded(placement=native_large, adUnit=ca-app-pub-3940256099942544/2247696110)
+11-25 13:52:00.136  5518  5518 I AdLibSample: native_large: Shown(placement=native_large)
+11-25 13:52:00.136  5518  5518 I AdLibSample: native_large: Paid 0.0 USD
+11-25 13:52:00.748  5518  5518 I AdLibSample: native_small: Shown(placement=native_small)
+11-25 13:52:00.748  5518  5518 I AdLibSample: native_small: Paid 0.0 USD
+11-25 13:52:01.624  5518  5518 I AdLibSample: native_large: Loaded(placement=native_large, adUnit=ca-app-pub-3940256099942544/2247696110)
+11-25 13:52:01.769  5518  5518 I AdLibSample: native_small: Loaded(placement=native_small, adUnit=ca-app-pub-3940256099942544/2247696110)
+11-25 13:52:01.960  5518  5518 I AdLibSample: native_large: Shown(placement=native_large)
+11-25 13:52:01.965  5518  5518 I AdLibSample: native_large: Paid 0.0 USD
+11-25 13:52:02.832  5518  5518 I AdLibSample: native_small: Shown(placement=native_small)
+11-25 13:52:02.832  5518  5518 I AdLibSample: native_small: Paid 0.0 USD
+11-25 13:52:03.483  5518  5518 I AdLibSample: native_large: Loaded(placement=native_large, adUnit=ca-app-pub-3940256099942544/2247696110)
+11-25 13:52:03.607  5518  5518 I AdLibSample: native_small: Loaded(placement=native_small, adUnit=ca-app-pub-3940256099942544/2247696110)
+11-25 13:52:03.893  5518  5518 I AdLibSample: native_large: Shown(placement=native_large)
+11-25 13:52:03.893  5518  5518 I AdLibSample: native_large: Paid 0.0 USD
+11-25 13:52:03.928  5518  5518 I AdLibSample: native_small: Paid 0.0 USD
+11-25 13:52:03.928  5518  5518 I AdLibSample: native_small: Shown(placement=native_small)
