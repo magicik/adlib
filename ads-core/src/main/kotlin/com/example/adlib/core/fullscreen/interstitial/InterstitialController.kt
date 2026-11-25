@@ -125,7 +125,7 @@ internal class InterstitialController(
             if (!gate.reserve(owner)) return
             // Counted only once the gate is ours: a gate-busy attempt must not use up a oneInN attempt.
             if (caps.tryConsume() != CapDecision.ALLOWED) return
-            val handle = pool.takeOwned(placement, options.waitForAdMs) { taking = it } ?: return
+            val handle = pool.takeOwned(placement, minOf(options.waitForAdMs, state.config(placement).totalTimeoutMs)) { taking = it } ?: return
             preloadFailures.remove(placement.name)
 
             val activity = host.get()
