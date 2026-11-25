@@ -546,3 +546,21 @@ Fixing baseline findings; any logic change; Compose-specific rule sets unless tr
 `build.gradle.kts`, `gradle/libs.versions.toml`, `config/detekt/`, `README.md`. Protected paths => owner merges with `OWNER=1`.
 ### Log
 - 2026-11-25 filed (owner approved detekt).
+
+## T28 — Set publishing groupId to com.magicik.adlib
+- Status: ready
+- Type: chore · Size: s · Complex: no · Priority: p2 · Depends on: none
+### Goal
+Owner decided (2026-11-25): groupId = `com.magicik.adlib`. Replace `com.github.PLACEHOLDER` in the three publication blocks and remove the placeholder TODOs.
+### Acceptance criteria
+- [ ] `groupId = "com.magicik.adlib"` in `ads-core`, `ads-testing`, `ads-ui-compose` publication blocks (keep existing artifactIds; if they are not unique/clear, report instead of renaming). Prefer one shared constant over three copies if trivial.
+- [ ] `TODO(publish)` comments removed; README "TODO publish (JitPack)" section rewritten: groupId, the three artifact coordinates, how to publish locally (`publishToMavenLocal`) and the JitPack caveat below. `CLAUDE.md` is NOT edited by Dev (protected; orchestrator/owner updates it).
+- [ ] Verify with `./gradlew publishToMavenLocal` (or equivalent) that the three artifacts land under `com/magicik/adlib/` in the local Maven repo; report the paths. Do not publish anywhere real.
+- [ ] README states the open question: on JitPack a GitHub repo is normally consumed as `com.github.magicik:adlib:<tag>`; whether the custom group `com.magicik.adlib` is served as-is must be confirmed on the first real JitPack build (owner check, no code change expected).
+- [ ] `./scripts/check.sh` passes (ktlint included).
+### Out of scope
+Renaming package `com.example.adlib` (still tentative; separate decision); publishing for real; Maven Central.
+### Files likely touched
+`ads-*/build.gradle.kts` (protected: owner merges with `OWNER=1`), `README.md`.
+### Log
+- 2026-11-25 filed (owner decided groupId com.magicik.adlib).
