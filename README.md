@@ -17,7 +17,8 @@ export ANDROID_HOME=<sdk path>   # or local.properties (sdk.dir=..., git-ignored
 ./scripts/check.sh               # assembleDebug + testDebugUnitTest, log in build/check.log
 ```
 Style: ktlint (CLI via root Gradle tasks, rules in `.editorconfig`). `check.sh` runs it automatically.
-`./gradlew ktlintCheck` to lint, `./gradlew ktlintFormat` to auto-fix. No detekt yet.
+`./gradlew ktlintCheck` to lint, `./gradlew ktlintFormat` to auto-fix.
+Static analysis: detekt 1.23.8 (CLI via root task, rules `config/detekt/detekt.yml`, parked findings `config/detekt/baseline.xml`). `./gradlew detekt` runs it (part of `check.sh`; only new findings fail). After fixing parked findings or accepting new ones: `./gradlew detektBaseline` and commit the baseline.
 
 ## TODO publish (JitPack)
 - Publishing blocks exist (`maven-publish`) with groupId `com.github.PLACEHOLDER`. TODO: replace with

@@ -1,0 +1,31 @@
+# Minimal overrides on top of detekt defaults (--build-upon-default-config).
+style:
+  MagicNumber:
+    active: false # noisy: timeouts/caps/colors are literal by design
+  MaxLineLength:
+    active: false # ktlint/.editorconfig owns line length
+  ReturnCount:
+    active: false # early returns are idiomatic here
+  WildcardImport:
+    active: false # ktlint owns import style
+  UnusedPrivateMember:
+    active: true
+complexity:
+  LongMethod:
+    excludes: ['**/test/**', '**/androidTest/**'] # test bodies are long by nature
+  LargeClass:
+    excludes: ['**/test/**']
+  TooManyFunctions:
+    excludes: ['**/test/**']
+  LongParameterList:
+    functionThreshold: 8
+    constructorThreshold: 10
+    ignoreDefaultParameters: true # config/data classes with defaults
+exceptions:
+  TooGenericExceptionCaught:
+    active: true # catch (Exception) can swallow CancellationException
+  SwallowedException:
+    active: true
+naming:
+  FunctionNaming:
+    ignoreAnnotated: ['Composable'] # Compose functions are PascalCase by convention

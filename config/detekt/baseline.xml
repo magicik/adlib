@@ -1,0 +1,25 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>ComplexCondition:AppOpenResumeController.kt$AppOpenResumeController$clicked || paused || formShowing.value || awayMs &lt; options.minBackgroundMs</ID>
+    <ID>ComplexCondition:AppOpenResumeController.kt$AppOpenResumeController$expired || host == null || !foreground.isForeground.value || !canShow(host) || handle !is AppOpenHandle || !gate.show(owner)</ID>
+    <ID>ComplexCondition:InterstitialController.kt$InterstitialController$expired || !isAlive(activity) || !isAllowed(placement) || handle !is InterstitialHandle</ID>
+    <ID>ComplexCondition:RewardedController.kt$RewardedController$expired || !isAlive(activity) || !state.isAdAllowed(placement) || handle !is RewardedHandle</ID>
+    <ID>CyclomaticComplexMethod:InterstitialController.kt$InterstitialController$private suspend fun tryShow(host: WeakReference&lt;Activity&gt;, placement: Placement, ended: CompletableDeferred&lt;Unit&gt;)</ID>
+    <ID>DestructuringDeclarationWithTooManyEntries:AdsStateTest.kt$AdsStateTest$(premium, kill, enable, canRequest, expected)</ID>
+    <ID>LongParameterList:AdsRuntime.kt$AdsRuntime$( options: AdsOptions, validated: ValidatedPlacements, scope: CoroutineScope, serial: MainSerialDispatcher, consentSource: ConsentSource, initializer: SdkInitializer, gateway: AdGateway, tracker: ActivityTracker, foreground: ForegroundSource, clock: Clock, /** Used when [AdsOptions.capStore] is null; `Ads.install` passes the SharedPreferences store. */ defaultCapStore: CapStore = InMemoryCapStore(), )</ID>
+    <ID>LongParameterList:AppOpenResumeController.kt$AppOpenResumeController$( private val placement: Placement, private val pool: AdPool, private val gate: FullScreenGate, private val gateway: AdGateway, private val state: AdsState, private val testMode: TestMode, private val tracker: ActivityTracker, private val foreground: ForegroundSource, private val formShowing: StateFlow&lt;Boolean&gt;, private val overlay: AppOpenOverlay, private val events: AdsEventBus, private val clock: Clock, serialScope: CoroutineScope, private val options: AppOpenResumeOptions = AppOpenResumeOptions(), )</ID>
+    <ID>LongParameterList:InterstitialController.kt$InterstitialController$( private val pool: AdPool, private val gate: FullScreenGate, private val gateway: AdGateway, private val state: AdsState, private val testMode: TestMode, private val caps: InterstitialCaps, private val tracker: ActivityTracker, private val events: AdsEventBus, private val clock: Clock, serialScope: CoroutineScope, private val options: InterstitialOptions = InterstitialOptions(), )</ID>
+    <ID>MatchingDeclarationName:SampleRoot.kt$Screen</ID>
+    <ID>SwallowedException:AdsBootstrap.kt$AdsBootstrap$@Suppress("TooGenericExceptionCaught") e: Exception</ID>
+    <ID>SwallowedException:AdsEventBus.kt$AdsEventBus$@Suppress("TooGenericExceptionCaught") e: Exception</ID>
+    <ID>SwallowedException:ConfigParser.kt$ConfigParser$e: JSONException</ID>
+    <ID>SwallowedException:OverlaySession.kt$OverlaySession$@Suppress("TooGenericExceptionCaught") e: Exception</ID>
+    <ID>TooManyFunctions:AdPool.kt$AdPool</ID>
+    <ID>TooManyFunctions:FakeAdGateway.kt$FakeAdGateway : AdGateway</ID>
+    <ID>TooManyFunctions:FakeConsentSource.kt$FakeConsentSource : ConsentSource</ID>
+    <ID>TooManyFunctions:NativeComposeUtility.kt$com.example.adlib.ui.compose.nativead.NativeComposeUtility.kt</ID>
+    <ID>UseCheckOrError:NativeComposeUtility.kt$throw IllegalStateException("NativeAdView null")</ID>
+  </CurrentIssues>
+</SmellBaseline>
