@@ -490,7 +490,7 @@ detekt; any logic change; renames.
 - 2026-11-25 filed (owner approved ktlint).
 
 ## T25 — Comment cleanups (sample hashed id, AdsRuntime attach)
-- Status: ready
+- Status: in-progress
 - Type: chore · Size: s · Complex: no · Priority: p2 · Depends on: none
 ### Goal
 Owner approved (2026-11-25) two comment-only cleanups found by QA.
@@ -504,6 +504,7 @@ Moving the id to local.properties/BuildConfig; ktlint-style fixes (T24 covers im
 `sample/.../SampleApp.kt`, `ads-core/.../AdsRuntime.kt` (comments only).
 ### Log
 - 2026-11-25 filed (owner approved cleanup).
+- 2026-11-25 in-progress (tracker)
 
 ## T26 — Config warnings emitted twice per show (state.config re-parses)
 - Status: ready
