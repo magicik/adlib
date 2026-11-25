@@ -14,7 +14,7 @@ Remote: `origin` = git@github.com:magicik/adlib.git (GitHub, them 2026-11-23). K
 - `docs/history/` — v1 + v2 addendum (lich su; bang ma yeu cau R/P/H o v1 muc 2.2).
 
 ## Quyet dinh owner (tom tat; chi tiet o v3)
-- Package `com.example.adlib` (tam), Compose BOM 2026.09.00, publish JitPack (groupId con PLACEHOLDER).
+- Package `com.example.adlib` (tam), Compose BOM 2026.09.00, publish JitPack (groupId `com.magicik.adlib`, owner 2026-11-25; JitPack serve dung group nay hay `com.github.magicik` thi xac nhan o lan build that dau tien).
 - Tu lam AdPool (khong dung Preloader), UMP truoc roi chi init SDK khi canRequestAds, consent timeout 10s (khong tinh luc form hien).
 - Config cho song song voi consent. Banner load truc tiep, khong pool. Tran 8 o native/man.
 - App Open khi QUAY LAI app (R33) BAT BUOC: lop phu + progress o lan dau, show ngay khi ad ve, CHAN Back trong luc lop phu (co tran overlayMaxMs), minBackgroundMs mac dinh 0, pauseForExternalFlow tu het han (60s) va chi 1 lan quay lai.
@@ -63,7 +63,7 @@ Tests protect logic. Write the fewest tests that would catch a real regression.
 - New test code ~<= production code changed; if much larger, say why.
 
 ## Definition of Done (ALL must be true)
-1. `./scripts/check.sh` passes (assembleDebug + testDebugUnitTest; ktlint/detekt once added).
+1. `./scripts/check.sh` passes (ktlintCheck + detekt + assembleDebug + testDebugUnitTest; detekt chi chan loi MOI, baseline o `config/detekt/baseline.xml`).
 2. Every acceptance criterion covered per the Testing policy.
 3. QA verdict `QA: APPROVED @<sha>` for that exact commit (chore/test: Dev `DEV: CHECK PASS @<sha>`).
 4. No TODO without a task id. `docs/ARCHITECTURE.md` updated when structure changed.
@@ -91,15 +91,10 @@ Tests protect logic. Write the fewest tests that would catch a real regression.
 - (none yet)
 
 ## Trang thai hien tai (cap nhat sau moi buoc)
-_Cap nhat 2026-11-23, main = 6c2df48 (merge consent-bootstrap), check.sh PASS._
-Xong: scaffold (Gradle 9.4.1, AGP 9.2.1, Kotlin 2.2.10, UMP 4.0.0), ConfigParser + PlacementConfig (+test bang),
-AdGateway/SdkAdGateway/MainSerialDispatcher/Clock, FakeAdGateway/FakeClock (ads-testing), sample thread probe (chua do), compose-utils-notes,
-ConsentGate/UmpConsentSource + AdsBootstrap/MobileAdsInitializer (+FakeConsentSource/FakeSdkInitializer, 13 test).
-Backlog chi tiet: `docs/TASKS.md` (T1..T14). Tom tat: Pool (goi bootstrap.awaitReadyToLoad() truoc moi load) (theo so nguoi cho, process scope) -> FullScreenGate/Interstitial/Rewarded (watchdog, showThen luon chay) ->
-AppOpenResume -> ads-ui-compose (chep NativeComposeUtility.kt Next-Gen, giu Apache-2.0) -> Ads.install + noi ConfigWarningSink vao listener -> UI demo trong `sample` (T12) -> tu test trong sample + README (T14).
-Treo / can lam:
-- DO THREAD THUC TE chua lam duoc: `adb devices` rong, co 4 AVD nhung thieu `Sdk/emulator/emulator.exe`. Can cam may that hoac cai emulator, cai `sample`, loc logcat tag `AdThreadProbe`, roi chot muc 6.7 cua v3.
-- `core.time.Clock` do agent gateway tao; thong nhat khi viet Pool/Consent (dung chung, dung tao Clock thu hai).
-- SDK 1.7.0 Rewarded chi co 1 chu ky load/show (v3 da sua).
-- Worktree thua `../AdLib-wt-gateway` (va thu muc `../AdLib-wt-config`) bi loi "Filename too long": owner xoa tay. Da bat `git config core.longpaths true`.
-- ktlint/detekt chua them (ghi o README).
+_Cap nhat 2026-11-25, board T1..T28 ALL done, check.sh PASS (125 test, ktlint + detekt)._
+Board `docs/TASKS.md` la nguon su that; ket qua may that Pixel 6a: `docs/sample-smoke.md` (lan 2026-11-25).
+Treo / can owner:
+- Device: Back bi chan trong lop phu App Open (lop phu ~1s, adb khong bat kip), tran 8 o native (dem bang mat), dailyCap tren may that (sample chua co dailyCap thap; T18 chi co JVM test), thread cua native onAdPaid/Impression va onAdFailedToShow.
+- Chua quyet: NativeComposeUtility.kt (ban copy Apache-2.0) da bi ktlint format lai 354 dong, co loai khoi ktlint khong; 4 muc SwallowedException trong baseline detekt; task sample (dailyCap thap, tat validator popup); log khi App Open bi bo qua do minGap; attach App Open ca khi Premium luc install.
+- Package `com.example.adlib` van tam; rename la quyet dinh rieng. Chua publish that.
+- `gradle/gradle-daemon-jvm.properties` untracked tu truoc: de nguyen.
