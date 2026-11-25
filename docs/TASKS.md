@@ -361,7 +361,7 @@ Any change to production defaults; App Open detach API (owner: stays attach-only
 - 2026-11-24 merged 5cda1d7 as 569f978; QA rounds 1; owner-check:none.
 
 ## T18 — Persist daily cap across process restarts (SharedPreferences)
-- Status: ready
+- Status: in-progress
 - Type: feature · Size: m · Complex: no · Priority: p1 · Depends on: none
 ### Goal
 Owner decision 2026-11-25 (Q4=C): `dailyCap` must survive app kill/restart. Persist cap counters only (not revenue; revenue stays in memory). Use SharedPreferences, no new dependency.
@@ -377,6 +377,7 @@ Persisting revenue; oneInN counters (stay in memory unless v3 says otherwise); D
 `ads-core/.../cap/`, `ads-testing/`, `Ads.install` wiring, tests.
 ### Log
 - 2026-11-25 filed (owner decided Q4=C).
+- 2026-11-25 in-progress (tracker)
 
 ## T19 — Rewarded counts toward interstitial gap (but is never blocked by gap)
 - Status: ready
