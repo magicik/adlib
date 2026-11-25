@@ -85,6 +85,8 @@ internal class AdsRuntime(
             )
         }
         validated.warnings.forEach { bus.emit(AdsEvent.ConfigWarning("", it)) }
+        // Once, here: the controller ignores a later explicit attachResume(). Premium at install = never watch.
+        if (options.autoAttachResume && !options.initialPremium) appOpen?.attachResume()
     }
 
     companion object {

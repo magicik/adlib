@@ -135,15 +135,7 @@ fun RewardedScreen(activity: Activity) {
 
 @Composable
 fun AppOpenScreen(activity: Activity) {
-    var attached by remember { mutableStateOf(false) }
     Column(screenPadding, verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        // The lib has no detach: once attached it stays attached until the process dies.
-        LabeledSwitch(stringResource(R.string.app_open_attach), attached, enabled = !attached) {
-            if (it) {
-                Ads.appOpen.attachResume()
-                attached = true
-            }
-        }
         Button({ Ads.appOpen.pauseForExternalFlow() }) { Text(stringResource(R.string.app_open_pause)) }
         Button({
             Ads.appOpen.pauseForExternalFlow()

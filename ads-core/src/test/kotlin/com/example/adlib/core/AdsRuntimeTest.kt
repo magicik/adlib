@@ -11,6 +11,7 @@ import com.example.adlib.core.gateway.MainSerialDispatcher
 import com.example.adlib.core.placement.Placement
 import com.example.adlib.testing.FakeActivityTracker
 import com.example.adlib.testing.FakeAdGateway
+import com.example.adlib.testing.FakeAppOpenOverlay
 import com.example.adlib.testing.FakeClock
 import com.example.adlib.testing.FakeConsentSource
 import com.example.adlib.testing.FakeForegroundSource
@@ -98,5 +99,46 @@ class AdsRuntimeTest {
         runCurrent()
         assertTrue(events.any { it is AdsEvent.ConfigWarning && it.message == validated.warnings[0] })
         scope.cancel()
+    }
+
+    @Test
+    fun `install attaches App Open resume unless opted out or Premium, and an explicit attach adds no second watcher`() = runTest {
+        val appOpen = Placement(
+            "app_open", AdFormat.APP_OPEN,
+            default = PlacementConfig(tiers = AdTiers(normal = listOf(AdUnitTier("a1", 10_000)))),
+        )
+        fun coversAfterReturn(autoAttach: Boolean = true, premium: Boolean = false, explicitAttach: Boolean = false): Int {
+            val serial = MainSerialDispatcher(StandardTestDispatcher(testScheduler))
+            val scope = CoroutineScope(SupervisorJob() + serial)
+            val overlay = FakeAppOpenOverlay()
+            val options = AdsOptions(
+                listOf(appOpen), appOpenOverlay = overlay, autoAttachResume = autoAttach, initialPremium = premium,
+            )
+            val foreground = FakeForegroundSource()
+            val tracker = FakeActivityTracker()
+            val runtime = AdsRuntime(
+                options, AdsRuntime.validate(options), scope, serial, FakeConsentSource(canRequestAds = true),
+                FakeSdkInitializer(), FakeAdGateway(scope, serial, FakeClock()), tracker, foreground, FakeClock(),
+            )
+            val activity = mockk<Activity>(relaxed = true)
+            if (explicitAttach) runtime.appOpen?.attachResume()
+            runCurrent()
+            foreground.toForeground()
+            tracker.resumeAppActivity(activity)
+            runCurrent()
+            tracker.pauseAppActivity()
+            foreground.toBackground()
+            runCurrent()
+            foreground.toForeground()
+            runCurrent()
+            tracker.resumeAppActivity(activity)
+            runCurrent()
+            scope.cancel()
+            return overlay.hosts.size
+        }
+        assertEquals("auto attach", 1, coversAfterReturn())
+        assertEquals("explicit attach after install", 1, coversAfterReturn(explicitAttach = true))
+        assertEquals("opted out", 0, coversAfterReturn(autoAttach = false))
+        assertEquals("premium", 0, coversAfterReturn(premium = true))
     }
 }

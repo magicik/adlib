@@ -55,7 +55,7 @@ class RewardedAds internal constructor(private val controller: RewardedControlle
 
 /** App Open on return to the app (v3 7). Does nothing when the app declared no App Open placement. */
 class AppOpenAds internal constructor(private val controller: AppOpenResumeController?) {
-    /** Starts watching returns to the app; call once, e.g. in `Application.onCreate` after install. */
+    /** Starts watching returns to the app. `install` already does it (see [AdsOptions.autoAttachResume]); a repeat call is a no-op. */
     fun attachResume() {
         controller?.attachResume()
     }
