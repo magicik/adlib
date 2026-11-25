@@ -196,6 +196,19 @@ class RewardedControllerTest {
     }
 
     @Test
+    fun `a dismissed rewarded starts the gap that interstitial and app open check`() = runTest {
+        val e = env(FullScreenGateOptions(minGapAfterFullScreenMs = 60_000))
+        assertFalse(e.gate.isWithinGap())
+        e.request(placement); runCurrent()
+        e.gateway.dismiss(e.gateway.handles[0]); runCurrent()
+        assertTrue(e.gate.isWithinGap())
+        e.clock.advanceBy(59_999)
+        assertTrue(e.gate.isWithinGap())
+        e.clock.advanceBy(1)
+        assertFalse(e.gate.isWithinGap())
+    }
+
+    @Test
     fun `isAllowed follows premium, kill switch and consent live`() = runTest {
         var consent = true
         val e = env()
